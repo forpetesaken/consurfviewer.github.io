@@ -160,6 +160,13 @@ def gather_data(project_root: Path):
             "_source": project_root / "ConSurf/output/WAPL/WAPLalignment_0708.fas",
             "_source_query": "Ciona_intestinalis",
         },
+        "SMC1": {
+          "Full": project_root / "ConSurf/output/SMC1/smc1_consurf_full/Human_SMC1_consurf.grades",
+          "Vertebrates": project_root / "ConSurf/output/SMC1/smc1_consurf_vertebrates/Human_SMC1_consurf.grades",
+          "Invertebrates": project_root / "ConSurf/output/SMC1/smc1_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+          "_source": project_root / "ConSurf/output/SMC1/SMC1_0708.fas",
+          "_source_query": "Ciona_intestinalis",
+        },
     }
 
     payload = {}
