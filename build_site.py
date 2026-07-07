@@ -245,10 +245,7 @@ def build_html(payload, plotly_script_tag: str):
 
     <div class=\"toolbar\">
       <input id=\"hl-label\" type=\"text\" placeholder=\"Label\" value=\"Region\" />
-      <input id=\"hl-start\" type=\"number\" placeholder=\"Start\" />
-      <input id=\"hl-end\" type=\"number\" placeholder=\"End\" />
       <input id=\"hl-color\" type=\"color\" value=\"#f59e0b\" />
-      <button id=\"hl-add\" type=\"button\">Add highlight</button>
       <button id=\"hl-pick\" type=\"button\">Pick from plot</button>
       <button id=\"hl-clear\" type=\"button\">Clear all</button>
     </div>
@@ -272,12 +269,9 @@ def build_html(payload, plotly_script_tag: str):
     const plotEl = document.getElementById('plot');
     const listEl = document.getElementById('highlight-list');
     const statusEl = document.getElementById('status');
-    const addBtn = document.getElementById('hl-add');
     const pickBtn = document.getElementById('hl-pick');
     const clearBtn = document.getElementById('hl-clear');
     const labelInput = document.getElementById('hl-label');
-    const startInput = document.getElementById('hl-start');
-    const endInput = document.getElementById('hl-end');
     const colorInput = document.getElementById('hl-color');
 
     const proteins = Object.keys(proteinDatasets);
@@ -496,19 +490,9 @@ def build_html(payload, plotly_script_tag: str):
 
       renderHighlightList();
       if (!pickMode) {{
-        setStatus('Add a highlight with Start/End or click Pick from plot.');
+        setStatus('Click Pick from plot, then click two residues to create a highlight.');
       }}
     }}
-
-    addBtn.addEventListener('click', () => {{
-      const start = Number(startInput.value);
-      const end = Number(endInput.value);
-      if (!Number.isFinite(start) || !Number.isFinite(end)) {{
-        setStatus('Enter numeric Start and End values.');
-        return;
-      }}
-      addHighlight(Math.round(start), Math.round(end), labelInput.value.trim(), colorInput.value);
-    }});
 
     pickBtn.addEventListener('click', () => {{
       pickMode = !pickMode;
