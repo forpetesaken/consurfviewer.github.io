@@ -444,7 +444,7 @@ def build_html(payload, plotly_script_tag: str):
       grid-template-columns: 240px 1fr;
       gap: 12px;
       align-items: start;
-      margin-bottom: 6px;
+      margin-bottom: 2px;
       font-family: Consolas, "Courier New", monospace;
       font-size: 12px;
       line-height: 1.35;
@@ -463,7 +463,7 @@ def build_html(payload, plotly_script_tag: str):
     .msa-seq {{
       display: flex;
       flex-wrap: wrap;
-      gap: 2px;
+      gap: 0;
       align-items: flex-start;
       align-content: flex-start;
     }}
@@ -473,11 +473,11 @@ def build_html(payload, plotly_script_tag: str):
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 4px;
+      border-radius: 0;
       font-size: 11px;
       font-weight: 800;
       line-height: 1;
-      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
       color: #0f172a;
       background: #e2e8f0;
     }}
