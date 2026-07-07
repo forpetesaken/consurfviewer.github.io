@@ -472,6 +472,15 @@ def build_html(payload, plotly_script_tag: str):
         radial-gradient(circle at bottom right, rgba(254,202,202,0.16), transparent 24%),
         #ffffff;
     }}
+    .msa-chunk {{
+      margin-bottom: 10px;
+    }}
+    .msa-chunk-head {{
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      color: #475569;
+      margin-bottom: 4px;
+    }}
     .msa-row {{
       display: grid;
       grid-template-columns: 240px 1fr;
@@ -871,12 +880,24 @@ def build_html(payload, plotly_script_tag: str):
       const fromCol = Math.max(0, Math.min(startCol, endCol) - flank);
       const toCol = Math.min(msa.aligned_length - 1, Math.max(startCol, endCol) + flank);
       msaMetaEl.textContent = `${{hl.label}} | query residues ${{hl.start}}-${{hl.end}} | aligned columns ${{fromCol + 1}}-${{toCol + 1}}`;
-      msaViewEl.innerHTML = msa.records.map((r) => `
-        <div class="msa-row">
-          <div class="msa-name">${{escapeHtml(r.name)}}</div>
-          <div class="msa-seq">${{renderColoredSeq(r.seq.slice(fromCol, toCol + 1))}}</div>
-        </div>
-      `).join('');
+      const wrapCols = 80;
+      const chunks = [];
+      for (let chunkStart = fromCol; chunkStart <= toCol; chunkStart += wrapCols) {{
+        const chunkEnd = Math.min(toCol, chunkStart + wrapCols - 1);
+        const rowsHtml = msa.records.map((r) => `
+          <div class="msa-row">
+            <div class="msa-name">${{escapeHtml(r.name)}}</div>
+            <div class="msa-seq">${{renderColoredSeq(r.seq.slice(chunkStart, chunkEnd + 1))}}</div>
+          </div>
+        `).join('');
+        chunks.push(`
+          <div class="msa-chunk">
+            <div class="msa-chunk-head">Columns ${{chunkStart + 1}}-${{chunkEnd + 1}}</div>
+            ${{rowsHtml}}
+          </div>
+        `);
+      }}
+      msaViewEl.innerHTML = chunks.join('');
     }}
 
     function renderPlot() {{
