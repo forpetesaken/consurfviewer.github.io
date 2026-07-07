@@ -698,7 +698,7 @@ def build_html(payload, plotly_script_tag: str):
       const width = Math.max(...msa.records.map((r) => r.name.length), 12);
       const lines = msa.records.map((r) => `${{r.name.padEnd(width)}}  ${{r.seq.slice(fromCol, toCol + 1)}}`);
       msaMetaEl.textContent = `${{hl.label}} | query residues ${{hl.start}}-${{hl.end}} | aligned columns ${{fromCol + 1}}-${{toCol + 1}}`;
-      msaViewEl.textContent = lines.join('\n');
+      msaViewEl.textContent = lines.join('\\n');
     }}
 
     function renderPlot() {{
