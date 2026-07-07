@@ -328,6 +328,11 @@ def build_html(payload, plotly_script_tag: str):
       <div class=\"hint\">Hover points for exact residue number, amino acid, score, and grade.</div>
     </div>
 
+
+    <div class="toolbar">
+      <input id="seq-query" type="text" placeholder="Find motif in current reference sequence (e.g. FGF)" />
+      <button id="seq-find" type="button">Find sequence</button>
+    </div>
     <div class=\"toolbar\">
       <input id=\"hl-label\" type=\"text\" placeholder=\"Label\" value=\"Region\" />
       <input id=\"hl-color\" type=\"color\" value=\"#f59e0b\" />
@@ -356,8 +361,10 @@ def build_html(payload, plotly_script_tag: str):
     const statusEl = document.getElementById('status');
     const pickBtn = document.getElementById('hl-pick');
     const clearBtn = document.getElementById('hl-clear');
+    const findBtn = document.getElementById('seq-find');
     const labelInput = document.getElementById('hl-label');
     const colorInput = document.getElementById('hl-color');
+    const seqQueryInput = document.getElementById('seq-query');
 
     const proteins = Object.keys(proteinDatasets);
     let currentProtein = proteins[0];
@@ -384,6 +391,10 @@ def build_html(payload, plotly_script_tag: str):
 
     function normalizeRange(a, b) {{
       return [Math.min(a, b), Math.max(a, b)];
+    }}
+
+    function removeSearchHighlights() {{
+      highlights[currentProtein][currentDataset] = highlights[currentProtein][currentDataset].filter((row) => !row.isSearch);
     }}
 
     function renderTabs() {{
@@ -475,10 +486,51 @@ def build_html(payload, plotly_script_tag: str):
         start: s,
         end: e,
         label: label || `Region ${{highlights[currentProtein][currentDataset].length + 1}}`,
-        color: color || '#f59e0b'
+        color: color || '#f59e0b',
+        isSearch: false
       }});
       renderPlot();
       setStatus(`Added highlight ${{s}}-${{e}}`);
+    }}
+
+    function addSearchHighlights(query) {{
+      const datasetObj = proteinDatasets[currentProtein][currentDataset];
+      const rows = datasetObj.rows;
+      const motif = query.trim().toUpperCase();
+      if (!motif) {{
+        setStatus('Enter a sequence motif to search.');
+        return;
+      }}
+
+      const sequence = rows.map((r) => r.aa).join('');
+      const matches = [];
+      let start = 0;
+      while (true) {{
+        const idx = sequence.indexOf(motif, start);
+        if (idx === -1) break;
+        matches.push([rows[idx].pos, rows[idx + motif.length - 1].pos]);
+        start = idx + 1;
+      }}
+
+      removeSearchHighlights();
+      if (!matches.length) {{
+        renderPlot();
+        setStatus(`No matches found for ${{motif}}.`);
+        return;
+      }}
+
+      matches.forEach(([s, e], i) => {{
+        highlights[currentProtein][currentDataset].push({{
+          id: makeHighlightId(),
+          start: s,
+          end: e,
+          label: `${{motif}} #${{i + 1}}`,
+          color: '#ef4444',
+          isSearch: true
+        }});
+      }});
+      renderPlot();
+      setStatus(`Found ${{matches.length}} match(es) for ${{motif}}.`);
     }}
 
     function renderPlot() {{
@@ -630,6 +682,16 @@ def build_html(payload, plotly_script_tag: str):
       highlights[currentProtein][currentDataset] = [];
       renderPlot();
       setStatus('Cleared highlights for current selection.');
+    }});
+
+    findBtn.addEventListener('click', () => {{
+      addSearchHighlights(seqQueryInput.value);
+    }});
+
+    seqQueryInput.addEventListener('keydown', (ev) => {{
+      if (ev.key === 'Enter') {{
+        addSearchHighlights(seqQueryInput.value);
+      }}
     }});
 
     datasetSelect.addEventListener('change', () => {{
