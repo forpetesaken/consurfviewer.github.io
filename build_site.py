@@ -82,25 +82,25 @@ def make_plotly_script(embed_plotly: bool):
     return f"<script>{plotly_js}</script>"
 
 
-def compute_human_presence_from_source(source_path: Path):
+def compute_human_presence_from_source(source_path: Path, source_query_key: str):
     records = read_fasta(source_path)
     human_seq = None
-    ciona_seq = None
+    query_seq = None
     for header, seq in records:
         lower = header.lower()
         if human_seq is None and ("homo_sapiens" in lower or "human" in lower):
             human_seq = seq
-        if ciona_seq is None and "ciona_intestinalis" in lower:
-            ciona_seq = seq
+        if query_seq is None and source_query_key.lower() in lower:
+            query_seq = seq
 
-    if human_seq is None or ciona_seq is None:
+    if human_seq is None or query_seq is None:
         return None
-    if len(human_seq) != len(ciona_seq):
+    if len(human_seq) != len(query_seq):
         return None
 
     presence = []
-    for human_char, ciona_char in zip(human_seq, ciona_seq):
-        if ciona_char != "-":
+    for human_char, query_char in zip(human_seq, query_seq):
+        if query_char != "-":
             presence.append(1 if human_char != "-" else None)
     return presence
 
@@ -111,31 +111,36 @@ def gather_data(project_root: Path):
             "Full": project_root / "ConSurf/output/RAD21/rad21_consurf_full/Human_RAD21_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/RAD21/rad21_consurf_vertebrates/Human_RAD21_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/RAD21/rad21_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": project_root / "ConSurf/input_splits/RAD21/rad21_full_reduced50.fasta",
+            "_source": project_root / "ConSurf/output/RAD21/updated_RAD21alignment_0625.fas",
+            "_source_query": "Ciona_intestinalis",
         },
         "STAG1": {
             "Full": project_root / "ConSurf/output/STAG1/stag1_consurf_full/Human_STAG1_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_vertebrates/Human_STAG1_consurf.grades",
-            "Invertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": project_root / "ConSurf/input_splits/STAG1/stag1_full_reduced50.fasta",
+            "Invertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_invertebrates/Branchiostoma_lanceolatum_consurf.grades",
+            "_source": Path(r"C:/Users/Nat/Downloads/Bioinformatics/updated_STAG1alignment_0612.fas"),
+            "_source_query": "Branchiostoma_lanceolatum",
         },
         "STAG2": {
             "Full": project_root / "ConSurf/output/STAG2/stag2_consurf_full/Human_STAG2_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/STAG2/stag2_consurf_vertebrates/Human_STAG2_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/STAG2/stag2_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": project_root / "ConSurf/input_splits/STAG2/stag2_full_reduced50.fasta",
+            "_source": project_root / "alignments_out/STAG2/01_STAG2_aligned.fasta",
+            "_source_query": "Ciona_intestinalis",
         },
         "CTCF": {
             "Full": project_root / "ConSurf/output/CTCF/ctcf_consurf_run/Human_CTCF_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_vertebrates/Human_CTCF_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": None,
+            "_source": project_root / "alignments_out/CTCF/01_CTCF_aligned.fasta",
+            "_source_query": "Ciona_intestinalis",
         },
         "WAPL": {
             "Full": project_root / "ConSurf/output/WAPL/wapl_consurf_full/Human_WAPL_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_vertebrates/Human_WAPL_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": project_root / "ConSurf/input_splits/WAPL/wapl_full_reduced50.fasta",
+            "_source": project_root / "ConSurf/output/WAPL/WAPLalignment_0708.fas",
+            "_source_query": "Ciona_intestinalis",
         },
     }
 
@@ -143,11 +148,13 @@ def gather_data(project_root: Path):
     for protein, datasets in cfg.items():
         payload[protein] = {}
         source_path = datasets.get("_source")
+        source_query_key = datasets.get("_source_query")
         invertebrate_presence = None
         if source_path:
             if not source_path.exists():
                 raise FileNotFoundError(f"Missing expected source alignment: {source_path}")
-            invertebrate_presence = compute_human_presence_from_source(source_path)
+            if source_query_key:
+                invertebrate_presence = compute_human_presence_from_source(source_path, source_query_key)
 
         for dataset_name, path in datasets.items():
             if dataset_name.startswith("_"):
@@ -159,9 +166,8 @@ def gather_data(project_root: Path):
             if dataset_name == "Full":
                 human_presence = [1] * len(rows)
             elif dataset_name == "Invertebrates" and invertebrate_presence is not None:
-                human_presence = invertebrate_presence[: len(rows)]
-                if len(human_presence) < len(rows):
-                    human_presence = human_presence + [None] * (len(rows) - len(human_presence))
+                if len(invertebrate_presence) == len(rows):
+                    human_presence = invertebrate_presence
 
             payload[protein][dataset_name] = {
                 "rows": rows,
