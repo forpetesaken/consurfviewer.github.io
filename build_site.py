@@ -474,22 +474,22 @@ def build_html(payload, plotly_script_tag: str):
       align-items: center;
       justify-content: center;
       border-radius: 4px;
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 800;
       line-height: 1;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
-      color: #e5e7eb;
-      background: rgba(51, 65, 85, 0.95);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+      color: #0f172a;
+      background: #e2e8f0;
     }}
-    .aa-gap {{ background: rgba(71, 85, 105, 0.55); color: #94a3b8; }}
-    .aa-hydrophobic {{ background: #92400e; color: #fde68a; }}
-    .aa-polar {{ background: #166534; color: #dcfce7; }}
-    .aa-positive {{ background: #1d4ed8; color: #dbeafe; }}
-    .aa-negative {{ background: #991b1b; color: #fee2e2; }}
-    .aa-gly {{ background: #6d28d9; color: #ede9fe; }}
-    .aa-pro {{ background: #be185d; color: #fce7f3; }}
-    .aa-cys {{ background: #155e75; color: #cffafe; }}
-    .aa-aromatic {{ background: #9a3412; color: #ffedd5; }}
+    .aa-gap {{ background: #e2e8f0; color: #94a3b8; }}
+    .aa-hydrophobic {{ background: #fde68a; color: #92400e; }}
+    .aa-polar {{ background: #bbf7d0; color: #166534; }}
+    .aa-positive {{ background: #bfdbfe; color: #1d4ed8; }}
+    .aa-negative {{ background: #fecaca; color: #991b1b; }}
+    .aa-gly {{ background: #ddd6fe; color: #6d28d9; }}
+    .aa-pro {{ background: #fbcfe8; color: #be185d; }}
+    .aa-cys {{ background: #a5f3fc; color: #155e75; }}
+    .aa-aromatic {{ background: #fed7aa; color: #9a3412; }}
     @media (max-width: 1000px) {{
       .panel {{
         grid-template-columns: 1fr;
