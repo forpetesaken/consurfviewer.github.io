@@ -82,7 +82,7 @@ def make_plotly_script(embed_plotly: bool):
     return f"<script>{plotly_js}</script>"
 
 
-def compute_human_presence_from_source(source_path: Path, source_query_key: str):
+def compute_human_mapping_from_source(source_path: Path, source_query_key: str):
     records = read_fasta(source_path)
     human_seq = None
     query_seq = None
@@ -98,11 +98,29 @@ def compute_human_presence_from_source(source_path: Path, source_query_key: str)
     if len(human_seq) != len(query_seq):
         return None
 
-    presence = []
+    human_index = 0
+    mapping = []
     for human_char, query_char in zip(human_seq, query_seq):
+        if human_char != "-":
+            human_index += 1
         if query_char != "-":
-            presence.append(1 if human_char != "-" else None)
-    return presence
+            if human_char != "-":
+                mapping.append(
+                    {
+                        "present": 1,
+                        "aa": human_char,
+                        "count": human_index,
+                    }
+                )
+            else:
+                mapping.append(
+                    {
+                        "present": None,
+                        "aa": None,
+                        "count": None,
+                    }
+                )
+    return mapping
 
 
 def gather_data(project_root: Path):
@@ -149,12 +167,12 @@ def gather_data(project_root: Path):
         payload[protein] = {}
         source_path = datasets.get("_source")
         source_query_key = datasets.get("_source_query")
-        invertebrate_presence = None
+        invertebrate_mapping = None
         if source_path:
             if not source_path.exists():
                 raise FileNotFoundError(f"Missing expected source alignment: {source_path}")
             if source_query_key:
-                invertebrate_presence = compute_human_presence_from_source(source_path, source_query_key)
+              invertebrate_mapping = compute_human_mapping_from_source(source_path, source_query_key)
 
         for dataset_name, path in datasets.items():
             if dataset_name.startswith("_"):
@@ -164,10 +182,13 @@ def gather_data(project_root: Path):
             rows = parse_grades(path)
             human_presence = None
             if dataset_name == "Full":
-                human_presence = [1] * len(rows)
-            elif dataset_name == "Invertebrates" and invertebrate_presence is not None:
-                if len(invertebrate_presence) == len(rows):
-                    human_presence = invertebrate_presence
+              human_presence = [
+                {"present": 1, "aa": row["aa"], "count": row["pos"]}
+                for row in rows
+              ]
+            elif dataset_name == "Invertebrates" and invertebrate_mapping is not None:
+              if len(invertebrate_mapping) == len(rows):
+                human_presence = invertebrate_mapping
 
             payload[protein][dataset_name] = {
                 "rows": rows,
@@ -545,6 +566,10 @@ def build_html(payload, plotly_script_tag: str):
         (currentDataset === 'Full' || currentDataset === 'Invertebrates') &&
         Array.isArray(humanPresence) &&
         humanPresence.length === x.length;
+      const humanPresenceY = showHumanTrack ? humanPresence.map((r) => r.present) : null;
+      const humanPresenceCustom = showHumanTrack
+        ? humanPresence.map((r) => [r.aa, r.count])
+        : null;
 
       const scoreTrace = {{
         x: x,
@@ -591,14 +616,17 @@ def build_html(payload, plotly_script_tag: str):
 
       const humanPresenceTrace = {{
         x: x,
-        y: humanPresence,
+        y: humanPresenceY,
         type: 'scatter',
         mode: 'lines',
         name: 'Human sequence present',
         line: {{ color: '#059669', width: 6, shape: 'hv' }},
+        customdata: humanPresenceCustom,
         hovertemplate:
           'Residue: %{{x}}<br>' +
-          'Human sequence present here: yes<extra></extra>',
+          'Human sequence present here: yes<br>' +
+          'Human residue: %{{customdata[0]}}<br>' +
+          'Human residue number: %{{customdata[1]}}<extra></extra>',
         yaxis: 'y3'
       }};
 
