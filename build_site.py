@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 from pathlib import Path
 from urllib.request import urlopen
 
@@ -77,16 +78,41 @@ def query_name_from_grades_path(grades_path: Path):
     return grades_path.stem.removesuffix("_consurf")
 
 
-def parse_msa_for_viewer(msa_path: Path, query_name: str):
+def extract_species_label(header: str):
+  os_match = re.search(r"\bOS=([^=]+?)(?:\sOX=|\sGN=|\sPE=|\sSV=|$)", header)
+  if os_match:
+    return os_match.group(1).strip()
+  return header.split()[0].strip()
+
+
+def build_display_name_lookup(source_records):
+  lookup = {}
+  for header, seq in source_records:
+    key = seq.upper()
+    lookup.setdefault(key, []).append(extract_species_label(header))
+  return lookup
+
+
+def parse_msa_for_viewer(msa_path: Path, query_name: str, display_source_path: Path | None = None):
     records = read_fasta(msa_path)
     if not records:
         return None
 
+  display_lookup = None
+  if display_source_path and display_source_path.exists():
+    display_lookup = build_display_name_lookup(read_fasta(display_source_path))
+
     query_seq = None
+  viewer_records = []
     for header, seq in records:
         if header == query_name:
             query_seq = seq
-            break
+    display_name = header
+    if display_lookup:
+      names = display_lookup.get(seq.upper())
+      if names:
+        display_name = names.pop(0)
+    viewer_records.append({"name": display_name, "seq": seq})
 
     if query_seq is None:
         return None
@@ -102,7 +128,7 @@ def parse_msa_for_viewer(msa_path: Path, query_name: str):
         "query_name": query_name,
         "aligned_length": len(query_seq),
         "pos_to_col": pos_to_col,
-        "records": [{"name": header, "seq": seq} for header, seq in records],
+      "records": viewer_records,
     }
 
 
@@ -164,6 +190,7 @@ def gather_data(project_root: Path):
             "Invertebrates": project_root / "ConSurf/output/RAD21/rad21_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
             "_source": project_root / "ConSurf/output/RAD21/updated_RAD21alignment_0625.fas",
             "_source_query": "Ciona_intestinalis",
+            "_display_source": project_root / "ConSurf/output/RAD21/updated_RAD21alignment_0625.fas",
         },
         "STAG1": {
             "Full": project_root / "ConSurf/output/STAG1/stag1_consurf_full/Human_STAG1_consurf.grades",
@@ -171,6 +198,7 @@ def gather_data(project_root: Path):
             "Invertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_invertebrates/Branchiostoma_lanceolatum_consurf.grades",
             "_source": Path(r"C:/Users/Nat/Downloads/Bioinformatics/updated_STAG1alignment_0612.fas"),
             "_source_query": "Branchiostoma_lanceolatum",
+            "_display_source": Path(r"C:/Users/Nat/Downloads/Bioinformatics/updated_STAG1alignment_0612.fas"),
         },
         "STAG2": {
             "Full": project_root / "ConSurf/output/STAG2/stag2_consurf_full/Human_STAG2_consurf.grades",
@@ -178,6 +206,7 @@ def gather_data(project_root: Path):
             "Invertebrates": project_root / "ConSurf/output/STAG2/stag2_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
             "_source": project_root / "alignments_out/STAG2/01_STAG2_aligned.fasta",
             "_source_query": "Ciona_intestinalis",
+            "_display_source": project_root / "alignments_out/STAG2/01_STAG2_aligned.fasta",
         },
         "CTCF": {
             "Full": project_root / "ConSurf/output/CTCF/ctcf_consurf_run/Human_CTCF_consurf.grades",
@@ -185,6 +214,7 @@ def gather_data(project_root: Path):
             "Invertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
             "_source": project_root / "alignments_out/CTCF/01_CTCF_aligned.fasta",
             "_source_query": "Ciona_intestinalis",
+            "_display_source": Path(r"C:/Users/Nat/Downloads/Bioinformatics/updated_alignment_0611.fas"),
         },
         "WAPL": {
             "Full": project_root / "ConSurf/output/WAPL/wapl_consurf_full/Human_WAPL_consurf.grades",
@@ -192,6 +222,7 @@ def gather_data(project_root: Path):
             "Invertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
             "_source": project_root / "ConSurf/output/WAPL/WAPLalignment_0708.fas",
             "_source_query": "Ciona_intestinalis",
+            "_display_source": project_root / "alignments_out/WAPL/01_WAPL_aligned.fasta",
         },
         "SMC1": {
           "Full": project_root / "ConSurf/output/SMC1/smc1_consurf_full/Human_SMC1_consurf.grades",
@@ -199,6 +230,7 @@ def gather_data(project_root: Path):
           "Invertebrates": project_root / "ConSurf/output/SMC1/smc1_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
           "_source": project_root / "ConSurf/output/SMC1/SMC1_0708.fas",
           "_source_query": "Ciona_intestinalis",
+          "_display_source": project_root / "alignments_out/SMC1/01_SMC1_aligned.fasta",
         },
     }
 
@@ -207,6 +239,7 @@ def gather_data(project_root: Path):
         payload[protein] = {}
         source_path = datasets.get("_source")
         source_query_key = datasets.get("_source_query")
+        display_source_path = datasets.get("_display_source")
         invertebrate_mapping = None
         if source_path:
             if not source_path.exists():
@@ -224,7 +257,7 @@ def gather_data(project_root: Path):
             msa_path = path.with_name(f"{query_name}_msa_file.fas")
             msa_data = None
             if msa_path.exists():
-                msa_data = parse_msa_for_viewer(msa_path, query_name)
+              msa_data = parse_msa_for_viewer(msa_path, query_name, display_source_path)
             human_presence = None
             if dataset_name == "Full":
                 human_presence = [
