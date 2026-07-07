@@ -299,67 +299,104 @@ def build_html(payload, plotly_script_tag: str):
     overview_json = json.dumps(
         {
       "CTCF": {
-        "summary": "CTCF is a sequence-specific chromatin architectural protein that defines many loop boundaries and can stall cohesin at appropriately oriented binding sites.",
-        "manual_sections": ["YDF 226-228", "ZF array approx. 266-577"],
+        "summary": "CTCF is a chromatin architectural factor that positions loop boundaries and recruits cohesin to specific DNA elements.",
+        "sections": [
+          "ZF array 266-577 mediates sequence-specific DNA binding that underlies boundary/insulator function.",
+          "R339, K344, H345 and R448 are tumor-associated zinc-finger residues where substitutions alter DNA-binding behavior.",
+          "R567W (ZF11) is a disease variant linked to neurodevelopmental phenotypes.",
+        ],
         "citations": [
           {"label": "UniProt P49711", "url": "https://www.uniprot.org/uniprotkb/P49711/entry"},
-          {"label": "AlphaFold P49711", "url": "https://alphafold.ebi.ac.uk/entry/P49711"},
+          {"label": "PMID 11782357", "url": "https://pubmed.ncbi.nlm.nih.gov/11782357/"},
+          {"label": "PMID 23746550", "url": "https://pubmed.ncbi.nlm.nih.gov/23746550/"},
         ],
       },
       "RAD21": {
-        "summary": "RAD21 is the cohesin kleisin that bridges SMC1A and SMC3 head domains and is central to cohesin ring closure and regulation.",
-        "manual_sections": [],
+        "summary": "RAD21 is the kleisin bridge between SMC1A and SMC3 and its cleavage and interaction interfaces are central to cohesion release and loader coupling.",
+        "sections": [
+          "Separase cleavage sites around R172 and R450 are required for anaphase chromatid separation.",
+          "Caspase-sensitive segment 276-280 (including D279) controls apoptotic RAD21 processing.",
+          "Region 154-171 contacts NIPBL; region 287-403 contributes WAPL/PDS5B/STAG1 interactions.",
+        ],
         "citations": [
           {"label": "UniProt O60216", "url": "https://www.uniprot.org/uniprotkb/O60216/entry"},
-          {"label": "AlphaFold O60216", "url": "https://alphafold.ebi.ac.uk/entry/O60216"},
+          {"label": "PMID 11509732", "url": "https://pubmed.ncbi.nlm.nih.gov/11509732/"},
+          {"label": "PMID 12417729", "url": "https://pubmed.ncbi.nlm.nih.gov/12417729/"},
+          {"label": "PMID 32409525", "url": "https://pubmed.ncbi.nlm.nih.gov/32409525/"},
         ],
       },
       "STAG1": {
-        "summary": "STAG1 (SA1) is a cohesin-associated HEAT-repeat subunit that contributes to chromatin association and loop architecture control.",
-        "manual_sections": [],
+        "summary": "STAG1 is a cohesin SA subunit; disease-linked residues and the SCD region mark positions likely important for cohesin assembly and chromatin functions.",
+        "sections": [
+          "SCD domain 296-381 is a conserved STAG family module in the cohesin-associated scaffold.",
+          "MRD47-associated residues Q214, R216, H220, Q333, W351, Q373, P478 and R979 identify function-sensitive positions.",
+          "Additional patient variants I85 and C377 have been reported in cohesinopathy cohorts.",
+        ],
         "citations": [
           {"label": "UniProt Q8WVM7", "url": "https://www.uniprot.org/uniprotkb/Q8WVM7/entry"},
-          {"label": "AlphaFold Q8WVM7", "url": "https://alphafold.ebi.ac.uk/entry/Q8WVM7"},
+          {"label": "PMID 28119487", "url": "https://pubmed.ncbi.nlm.nih.gov/28119487/"},
+          {"label": "PMID 30158690", "url": "https://pubmed.ncbi.nlm.nih.gov/30158690/"},
         ],
       },
       "STAG2": {
-        "summary": "STAG2 (SA2) is a paralogous cohesin-associated HEAT-repeat subunit with major roles in interphase chromatin loop organization.",
-        "manual_sections": [],
+        "summary": "STAG2 is the alternative SA subunit in many cohesin complexes; specific variants map to residues tied to cohesin assembly and developmental disease.",
+        "sections": [
+          "N327 is a function-critical residue: N327S causes loss of RAD21/cohesin interaction in a familial cohesinopathy study.",
+          "SCD domain 293-378 is a conserved STAG module implicated in cohesin architecture.",
+          "Developmental-disease variants include Y159C, R604Q and K1009N, highlighting additional sensitive positions.",
+        ],
         "citations": [
           {"label": "UniProt Q8N3U4", "url": "https://www.uniprot.org/uniprotkb/Q8N3U4/entry"},
-          {"label": "AlphaFold Q8N3U4", "url": "https://alphafold.ebi.ac.uk/entry/Q8N3U4"},
+          {"label": "PMID 29263825", "url": "https://pubmed.ncbi.nlm.nih.gov/29263825/"},
+          {"label": "PMID 28296084", "url": "https://pubmed.ncbi.nlm.nih.gov/28296084/"},
         ],
       },
       "WAPL": {
-        "summary": "WAPL is a cohesin release factor that limits cohesin residence time on DNA and therefore constrains loop size and lifetime.",
-        "manual_sections": [],
+        "summary": "WAPL promotes cohesin release from DNA, and short FGF-containing motifs are key determinants of interactions in the release pathway.",
+        "sections": [
+          "FGF motifs at 73-75, 429-431 and 453-455 are annotated interaction hotspots.",
+          "Mutagenesis of the 429-431 and 453-455 FGF motifs reduces or abolishes PDS5B-dependent interactions.",
+          "These motifs map to the WAPL-PDS5 regulatory interface that controls cohesin unloading timing.",
+        ],
         "citations": [
           {"label": "UniProt Q7Z5K2", "url": "https://www.uniprot.org/uniprotkb/Q7Z5K2/entry"},
-          {"label": "AlphaFold Q7Z5K2", "url": "https://alphafold.ebi.ac.uk/entry/Q7Z5K2"},
+          {"label": "PMID 19696148", "url": "https://pubmed.ncbi.nlm.nih.gov/19696148/"},
         ],
       },
       "NIPBL": {
-        "summary": "NIPBL is a primary cohesin loader/regulator needed for productive cohesin engagement and robust loop extrusion in cells.",
-        "manual_sections": [],
+        "summary": "NIPBL is the core cohesin loader and uses specific motifs and HEAT-repeat regions to engage cohesin and chromatin.",
+        "sections": [
+          "PxVxL motif around 996-1009 contributes partner recognition in chromatin regulatory contexts.",
+          "V1003 and L1005 within this motif are mutagenesis-sensitive residues that weaken reported binding interactions.",
+          "HEAT-repeat region is directly implicated in contacts with cohesin subunits during loading complexes.",
+        ],
         "citations": [
           {"label": "UniProt Q6KC79", "url": "https://www.uniprot.org/uniprotkb/Q6KC79/entry"},
-          {"label": "AlphaFold Q6KC79", "url": "https://alphafold.ebi.ac.uk/entry/Q6KC79"},
+          {"label": "PMID 32409525", "url": "https://pubmed.ncbi.nlm.nih.gov/32409525/"},
         ],
       },
       "SMC1": {
-        "summary": "SMC1A is one of the two cohesin ATPase motor subunits and contributes directly to ATP-driven conformational cycling during extrusion.",
-        "manual_sections": [],
+        "summary": "SMC1A is a cohesin ATPase subunit whose ATP-binding and regulatory phosphosites are linked to checkpoint and cohesion control.",
+        "sections": [
+          "ATP-binding motif 32-39 marks the N-terminal head region central to ATPase cycling.",
+          "Hinge domain 515-629 forms the SMC1A-SMC3 dimerization interface critical for ring architecture.",
+          "Checkpoint-regulated phosphosites S957 and S966 are mutagenesis-sensitive in DNA damage response assays.",
+        ],
         "citations": [
           {"label": "UniProt Q14683", "url": "https://www.uniprot.org/uniprotkb/Q14683/entry"},
-          {"label": "AlphaFold Q14683", "url": "https://alphafold.ebi.ac.uk/entry/Q14683"},
+          {"label": "PMID 32409525", "url": "https://pubmed.ncbi.nlm.nih.gov/32409525/"},
         ],
       },
       "SMC3": {
-        "summary": "SMC3 is the second cohesin ATPase motor subunit and partners with SMC1A to support DNA capture, translocation, and loop extrusion.",
-        "manual_sections": [],
+        "summary": "SMC3 partners with SMC1A in cohesin ATPase cycling; specific lysines and head/hinge regions are key to stable cohesion and loop control.",
+        "sections": [
+          "ATP-binding motif 32-39 marks the catalytic head region used in ATP-driven conformational transitions.",
+          "Acetylation-sensitive K105 and K106 are classic cohesion-control residues with strong functional evidence.",
+          "Hinge region supports SMC1A-SMC3 dimer architecture and thus constrains ring mechanics during extrusion.",
+        ],
         "citations": [
           {"label": "UniProt Q9UQE7", "url": "https://www.uniprot.org/uniprotkb/Q9UQE7/entry"},
-          {"label": "AlphaFold Q9UQE7", "url": "https://alphafold.ebi.ac.uk/entry/Q9UQE7"},
+          {"label": "PMID 32409525", "url": "https://pubmed.ncbi.nlm.nih.gov/32409525/"},
         ],
       },
         }
@@ -830,30 +867,6 @@ def build_html(payload, plotly_script_tag: str):
         .join('');
     }}
 
-    function computeConservedSections(protein) {{
-      const fullRows = proteinDatasets[protein]?.Full?.rows || [];
-      const filtered = fullRows.filter((r) => r.grade >= 8 && !r.low_conf);
-      if (!filtered.length) return [];
-
-      const runs = [];
-      let current = [filtered[0]];
-      for (let i = 1; i < filtered.length; i += 1) {{
-        if (filtered[i].pos === filtered[i - 1].pos + 1) {{
-          current.push(filtered[i]);
-        }} else {{
-          runs.push(current);
-          current = [filtered[i]];
-        }}
-      }}
-      runs.push(current);
-
-      return runs
-        .filter((run) => run.length >= 3)
-        .sort((a, b) => b.length - a.length)
-        .slice(0, 3)
-        .map((run) => `${{run[0].pos}}-${{run[run.length - 1].pos}} (${{run.map((r) => r.aa).join('')}})`);
-    }}
-
     function renderCitations(citations) {{
       if (!Array.isArray(citations) || !citations.length) return 'No citations available.';
       return citations
@@ -884,22 +897,16 @@ def build_html(payload, plotly_script_tag: str):
         return;
       }}
 
-      const manualSections = Array.isArray(ov.manual_sections) ? ov.manual_sections : [];
-      const conservedSections = computeConservedSections(currentProtein);
-      const sectionParts = [];
-      if (manualSections.length) {{
-        sectionParts.push(`Known/annotated: ${{manualSections.join('; ')}}`);
-      }}
-      if (conservedSections.length) {{
-        sectionParts.push(`ConSurf high-conservation (Full): ${{conservedSections.join('; ')}}`);
-      }}
-      if (!sectionParts.length) {{
-        sectionParts.push('No strong residue-level section candidates detected with current thresholds.');
-      }}
+      const sectionParts = Array.isArray(ov.sections) ? ov.sections : [];
+      const sectionsHtml = sectionParts.length
+        ? '<ul style="margin: 6px 0 0 18px; padding: 0;">' +
+          sectionParts.map((text) => `<li>${{escapeHtml(text)}}</li>`).join('') +
+          '</ul>'
+        : 'No residue-level external annotations are currently listed.';
 
       proteinOverviewEl.innerHTML =
         `<p><strong>Overview:</strong> ${{escapeHtml(ov.summary || '')}}</p>` +
-        `<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> ${{escapeHtml(sectionParts.join(' | '))}}</div>` +
+        `<div class="overview-callout"><strong>DNA extrusion-relevant residues/regions (external evidence):</strong> ${{sectionsHtml}}</div>` +
         `<p class="overview-citations"><strong>Citations:</strong> ${{renderCitations(ov.citations)}}</p>`;
     }}
 
