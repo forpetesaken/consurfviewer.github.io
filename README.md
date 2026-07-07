@@ -32,6 +32,25 @@ git commit -m "Update viewer data"
 git push
 ```
 
+## Gap Handling Notes
+
+ConSurf is run in MSA mode using the provided alignment as-is.
+
+- Full and vertebrate views use the human sequence as the query.
+- Invertebrate views use the selected invertebrate reference/query sequence.
+- ConSurf reports one conservation score per non-gap residue in the query sequence for that run.
+- Gaps in other sequences are treated as missing data, not amino acid substitutions.
+- If many non-query sequences are gapped at a query position, that position is still scored, but with less information.
+- If the query itself has no residue at a column, that column is not scored at all.
+
+### Human Presence Track
+
+For full and invertebrate views, the site can display a `Human present` track below the plot.
+
+- This indicates whether a scored query position has a human residue aligned at that same column.
+- Hovering the track shows the aligned human residue and human residue number when available.
+- This is especially useful for invertebrate plots, where conservation can appear over regions that do not actually align to human residues.
+
 ## Quick publish options
 
 ### Option 1: GitHub Pages
