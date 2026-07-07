@@ -232,6 +232,14 @@ def gather_data(project_root: Path):
           "_source_query": "Ciona_intestinalis",
           "_display_source": project_root / "alignments_out/SMC1/01_SMC1_aligned.fasta",
         },
+        "SMC3": {
+          "Full": project_root / "ConSurf/output/SMC3/smc3_consurf_full/Human_SMC3_consurf.grades",
+          "Vertebrates": project_root / "ConSurf/output/SMC3/smc3_consurf_vertebrates/Human_SMC3_consurf.grades",
+          "Invertebrates": project_root / "ConSurf/output/SMC3/smc3_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+          "_source": project_root / "ConSurf/output/SMC3/smc3_0708.fas",
+          "_source_query": "Ciona_intestinalis",
+          "_display_source": project_root / "ConSurf/output/SMC3/smc3_0708.fas",
+        },
         "NIPBL": {
           "Full": project_root / "ConSurf/output/NIPBL/nipbl_consurf_full/Human_NIPBL_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/NIPBL/nipbl_consurf_vertebrates/Human_NIPBL_consurf.grades",
