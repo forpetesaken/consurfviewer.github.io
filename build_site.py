@@ -86,11 +86,11 @@ def extract_species_label(header: str):
 
 
 def build_display_name_lookup(source_records):
-  lookup = {}
-  for header, seq in source_records:
-    key = seq.upper()
-    lookup.setdefault(key, []).append(extract_species_label(header))
-  return lookup
+    lookup = {}
+    for header, seq in source_records:
+        key = seq.upper()
+        lookup.setdefault(key, []).append(extract_species_label(header))
+    return lookup
 
 
 def parse_msa_for_viewer(msa_path: Path, query_name: str, display_source_path: Path | None = None):
@@ -98,21 +98,21 @@ def parse_msa_for_viewer(msa_path: Path, query_name: str, display_source_path: P
     if not records:
         return None
 
-  display_lookup = None
-  if display_source_path and display_source_path.exists():
-    display_lookup = build_display_name_lookup(read_fasta(display_source_path))
+    display_lookup = None
+    if display_source_path and display_source_path.exists():
+        display_lookup = build_display_name_lookup(read_fasta(display_source_path))
 
     query_seq = None
-  viewer_records = []
+    viewer_records = []
     for header, seq in records:
         if header == query_name:
             query_seq = seq
-    display_name = header
-    if display_lookup:
-      names = display_lookup.get(seq.upper())
-      if names:
-        display_name = names.pop(0)
-    viewer_records.append({"name": display_name, "seq": seq})
+        display_name = header
+        if display_lookup:
+            names = display_lookup.get(seq.upper())
+            if names:
+                display_name = names.pop(0)
+        viewer_records.append({"name": display_name, "seq": seq})
 
     if query_seq is None:
         return None
