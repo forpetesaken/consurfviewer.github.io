@@ -539,7 +539,7 @@ def build_html(payload, plotly_script_tag: str):
       color: #0f172a;
       background: #e2e8f0;
     }}
-    .aa-gap {{ background: #e2e8f0; color: #94a3b8; }}
+    .aa-gap {{ background: #ffffff; color: #cbd5e1; }}
     .aa-hydrophobic {{ background: #fde68a; color: #92400e; }}
     .aa-polar {{ background: #bbf7d0; color: #166534; }}
     .aa-positive {{ background: #bfdbfe; color: #1d4ed8; }}
