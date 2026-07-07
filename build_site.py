@@ -296,6 +296,74 @@ def gather_data(project_root: Path):
 
 def build_html(payload, plotly_script_tag: str):
     datasets_json = json.dumps(payload)
+    overview_json = json.dumps(
+        {
+      "CTCF": (
+        '<p><strong>Overview:</strong> CTCF is a sequence-specific architectural DNA-binding factor that helps position loop anchors and boundary elements. In loop extrusion models, CTCF can halt or stabilize cohesin when cohesin encounters convergent CTCF sites.</p>'
+        '<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> central zinc-finger array (ZF1-11) for sequence-specific DNA binding and orientation-dependent boundary activity; flanking N- and C-terminal regions for partner interactions.</div>'
+        '<p class="overview-citations"><strong>Citations:</strong> '
+        '<a href="https://www.uniprot.org/uniprotkb/P49711/entry" target="_blank" rel="noopener noreferrer">UniProt P49711</a>; '
+        '<a href="https://doi.org/10.1016/j.cell.2017.04.004" target="_blank" rel="noopener noreferrer">Nora et al., 2017</a>; '
+        '<a href="https://doi.org/10.1038/s41580-021-00364-8" target="_blank" rel="noopener noreferrer">Davidson and Peters, 2021</a></p>'
+      ),
+      "RAD21": (
+        '<p><strong>Overview:</strong> RAD21 is the cohesin kleisin subunit that closes the ring by linking SMC1 and SMC3 head regions. It is central to topological DNA entrapment and to coupling ATPase-driven conformational changes to extrusion behavior.</p>'
+        '<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> N-terminal interface with SMC3 head, C-terminal interface with SMC1 head, and separase-sensitive regulatory segments that control cohesin residence time.</div>'
+        '<p class="overview-citations"><strong>Citations:</strong> '
+        '<a href="https://www.uniprot.org/uniprotkb/O60216/entry" target="_blank" rel="noopener noreferrer">UniProt O60216</a>; '
+        '<a href="https://doi.org/10.1016/S1097-2765(02)00485-8" target="_blank" rel="noopener noreferrer">Haering et al., 2002</a>; '
+        '<a href="https://doi.org/10.1038/s41580-021-00364-8" target="_blank" rel="noopener noreferrer">Davidson and Peters, 2021</a></p>'
+      ),
+      "STAG1": (
+        '<p><strong>Overview:</strong> STAG1 (SA1) is a cohesin-associated HEAT-repeat subunit that tunes chromatin binding specificity and loop organization in a context-dependent way. SA1- and SA2-containing cohesin complexes can have distinct genomic localization and loop behaviors.</p>'
+        '<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> HEAT-repeat surfaces implicated in contacts with RAD21/other regulators and chromatin factors that influence loading, stalling, and loop stability.</div>'
+        '<p class="overview-citations"><strong>Citations:</strong> '
+        '<a href="https://www.uniprot.org/uniprotkb/Q8WVM7/entry" target="_blank" rel="noopener noreferrer">UniProt Q8WVM7</a>; '
+        '<a href="https://doi.org/10.1101/gad.326058.119" target="_blank" rel="noopener noreferrer">Kojic et al., 2019</a>; '
+        '<a href="https://doi.org/10.1038/s41580-021-00364-8" target="_blank" rel="noopener noreferrer">Davidson and Peters, 2021</a></p>'
+      ),
+      "STAG2": (
+        '<p><strong>Overview:</strong> STAG2 (SA2) is a paralogous cohesin-associated HEAT-repeat subunit with major roles in interphase chromatin looping and genome organization. Differences between SA1 and SA2 complexes are important for where cohesin extrudes and where loops are retained.</p>'
+        '<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> HEAT-repeat interaction surfaces that modulate cohesin regulator binding and chromatin residence, affecting loop size and persistence.</div>'
+        '<p class="overview-citations"><strong>Citations:</strong> '
+        '<a href="https://www.uniprot.org/uniprotkb/Q8N3U4/entry" target="_blank" rel="noopener noreferrer">UniProt Q8N3U4</a>; '
+        '<a href="https://doi.org/10.1101/gad.326058.119" target="_blank" rel="noopener noreferrer">Kojic et al., 2019</a>; '
+        '<a href="https://doi.org/10.1038/s41580-021-00364-8" target="_blank" rel="noopener noreferrer">Davidson and Peters, 2021</a></p>'
+      ),
+      "WAPL": (
+        '<p><strong>Overview:</strong> WAPL is a cohesin release factor that promotes opening of the cohesin-DNA interaction cycle, thereby limiting loop lifetime and average loop size. Reduced WAPL activity generally increases cohesin residence and can expand loop extrusion outcomes.</p>'
+        '<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> cohesin/PDS5 interaction regions that control release kinetics and therefore act as a key brake on extrusion processivity.</div>'
+        '<p class="overview-citations"><strong>Citations:</strong> '
+        '<a href="https://www.uniprot.org/uniprotkb/Q7Z5K2/entry" target="_blank" rel="noopener noreferrer">UniProt Q7Z5K2</a>; '
+        '<a href="https://doi.org/10.1016/j.cell.2017.09.018" target="_blank" rel="noopener noreferrer">Wutz et al., 2017</a>; '
+        '<a href="https://doi.org/10.1038/s41580-021-00364-8" target="_blank" rel="noopener noreferrer">Davidson and Peters, 2021</a></p>'
+      ),
+      "NIPBL": (
+        '<p><strong>Overview:</strong> NIPBL is a primary cohesin loader and activity regulator that promotes productive cohesin engagement on chromatin and supports loop extrusion initiation. Changes in NIPBL dosage or function strongly affect loop domain strength and long-range contacts.</p>'
+        '<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> MAU2-associated loading regions and C-terminal HEAT-repeat architecture involved in cohesin capture/loading and regulation of translocation competence.</div>'
+        '<p class="overview-citations"><strong>Citations:</strong> '
+        '<a href="https://www.uniprot.org/uniprotkb/Q6KC79/entry" target="_blank" rel="noopener noreferrer">UniProt Q6KC79</a>; '
+        '<a href="https://doi.org/10.1016/j.cell.2017.09.026" target="_blank" rel="noopener noreferrer">Rao et al., 2017</a>; '
+        '<a href="https://doi.org/10.1038/s41580-021-00364-8" target="_blank" rel="noopener noreferrer">Davidson and Peters, 2021</a></p>'
+      ),
+      "SMC1": (
+        '<p><strong>Overview:</strong> SMC1A is one of the two ATPase core motors of cohesin. Together with SMC3, it forms long coiled coils with an ATPase head and hinge architecture that powers DNA capture and extrusion-related conformational cycling.</p>'
+        '<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> N/C-terminal ATPase head module (ATP binding/hydrolysis cycle), long coiled-coil arms (allosteric communication), and hinge dimerization region with SMC3.</div>'
+        '<p class="overview-citations"><strong>Citations:</strong> '
+        '<a href="https://www.uniprot.org/uniprotkb/Q14683/entry" target="_blank" rel="noopener noreferrer">UniProt Q14683</a>; '
+        '<a href="https://doi.org/10.1016/S1097-2765(02)00485-8" target="_blank" rel="noopener noreferrer">Haering et al., 2002</a>; '
+        '<a href="https://doi.org/10.1038/s41580-021-00364-8" target="_blank" rel="noopener noreferrer">Davidson and Peters, 2021</a></p>'
+      ),
+      "SMC3": (
+        '<p><strong>Overview:</strong> SMC3 is the second ATPase core motor in cohesin and partners with SMC1A to drive ATP-dependent cohesin dynamics on DNA. Its head-hinge-coiled coil architecture is central to cohesin translocation and loop extrusion behavior.</p>'
+        '<div class="overview-callout"><strong>DNA extrusion-relevant sections:</strong> N/C-terminal ATPase head, coiled-coil transmission segments, hinge interface with SMC1, and acetylation-regulated regions linked to cohesin stability on chromatin.</div>'
+        '<p class="overview-citations"><strong>Citations:</strong> '
+        '<a href="https://www.uniprot.org/uniprotkb/Q9UQE7/entry" target="_blank" rel="noopener noreferrer">UniProt Q9UQE7</a>; '
+        '<a href="https://doi.org/10.1016/S1097-2765(02)00485-8" target="_blank" rel="noopener noreferrer">Haering et al., 2002</a>; '
+        '<a href="https://doi.org/10.1038/s41580-021-00364-8" target="_blank" rel="noopener noreferrer">Davidson and Peters, 2021</a></p>'
+            ),
+        }
+    )
     return f"""<!doctype html>
 <html lang=\"en\">
 <head>
@@ -321,6 +389,38 @@ def build_html(payload, plotly_script_tag: str):
       gap: 8px;
       flex-wrap: wrap;
       margin-bottom: 12px;
+    }}
+    .overview {{
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      color: #0f172a;
+      font-size: 13px;
+      line-height: 1.45;
+    }}
+    .overview p {{
+      margin: 0 0 7px 0;
+    }}
+    .overview-callout {{
+      border-left: 4px solid #2563eb;
+      background: #eff6ff;
+      padding: 7px 9px;
+      border-radius: 6px;
+      margin: 0 0 7px 0;
+    }}
+    .overview-citations {{
+      font-size: 12px;
+      color: #334155;
+      margin: 0;
+    }}
+    .overview a {{
+      color: #1d4ed8;
+      text-decoration: none;
+    }}
+    .overview a:hover {{
+      text-decoration: underline;
     }}
     .tab {{
       border: 1px solid #cbd5e1;
@@ -580,6 +680,7 @@ def build_html(payload, plotly_script_tag: str):
   <div class=\"wrap\">
     <h2>ConSurf Interactive Viewer</h2>
     <div class=\"tabs\" id=\"protein-tabs\"></div>
+    <div class=\"overview\" id=\"protein-overview\"></div>
 
     <div class=\"toolbar\">
       <label for=\"dataset\">Dataset:</label>
@@ -627,6 +728,7 @@ def build_html(payload, plotly_script_tag: str):
     const proteinDatasets = {datasets_json};
 
     const proteinTabs = document.getElementById('protein-tabs');
+    const proteinOverviewEl = document.getElementById('protein-overview');
     const datasetSelect = document.getElementById('dataset');
     const plotEl = document.getElementById('plot');
     const listEl = document.getElementById('highlight-list');
@@ -644,6 +746,7 @@ def build_html(payload, plotly_script_tag: str):
     const seqQueryInput = document.getElementById('seq-query');
 
     const proteins = Object.keys(proteinDatasets);
+    const proteinOverviews = {overview_json};
     let currentProtein = proteins[0];
     let currentDataset = Object.keys(proteinDatasets[currentProtein])[0];
     let selectedHighlightId = null;
@@ -741,6 +844,10 @@ def build_html(payload, plotly_script_tag: str):
         }});
         proteinTabs.appendChild(btn);
       }});
+    }}
+
+    function renderOverview() {{
+      proteinOverviewEl.innerHTML = proteinOverviews[currentProtein] || '<p><strong>Overview:</strong> No overview available.</p>';
     }}
 
     function renderDatasetSelect() {{
@@ -1118,6 +1225,7 @@ def build_html(payload, plotly_script_tag: str):
     function renderAll() {{
       selectedHighlightId = null;
       renderTabs();
+      renderOverview();
       renderDatasetSelect();
       renderPlot();
     }}
