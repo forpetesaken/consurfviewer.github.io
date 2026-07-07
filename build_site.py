@@ -280,6 +280,8 @@ def gather_data(project_root: Path):
                 "rows": rows,
                 "human_presence": human_presence,
                 "msa": msa_data,
+              "n_sequences": len(msa_data["records"]) if msa_data else None,
+              "msa_source": msa_path.name if msa_data else None,
             }
     return payload
 
@@ -356,6 +358,11 @@ def build_html(payload, plotly_script_tag: str):
       font-size: 12px;
       color: #334155;
       min-height: 18px;
+      margin-bottom: 8px;
+    }}
+    .dataset-meta {{
+      font-size: 12px;
+      color: #475569;
       margin-bottom: 8px;
     }}
     .panel {{
@@ -585,6 +592,7 @@ def build_html(payload, plotly_script_tag: str):
     </div>
 
     <div class=\"status\" id=\"status\"></div>
+    <div class=\"dataset-meta\" id=\"dataset-meta\"></div>
 
     <div class=\"panel\">
       <div id=\"plot\"></div>
@@ -615,6 +623,7 @@ def build_html(payload, plotly_script_tag: str):
     const plotEl = document.getElementById('plot');
     const listEl = document.getElementById('highlight-list');
     const statusEl = document.getElementById('status');
+    const datasetMetaEl = document.getElementById('dataset-meta');
     const msaOverlayEl = document.getElementById('msa-overlay');
     const msaMetaEl = document.getElementById('msa-meta');
     const msaViewEl = document.getElementById('msa-view');
@@ -916,6 +925,8 @@ def build_html(payload, plotly_script_tag: str):
       const grade = data.map((r) => r.grade);
       const custom = data.map((r) => [r.aa, r.grade, r.low_conf ? 'yes' : 'no', r.score]);
       const humanPresence = datasetObj.human_presence || null;
+      const nSequences = Number.isFinite(datasetObj.n_sequences) ? datasetObj.n_sequences : null;
+      const msaSource = datasetObj.msa_source || null;
       const showHumanTrack =
         (currentDataset === 'Full' || currentDataset === 'Invertebrates') &&
         Array.isArray(humanPresence) &&
@@ -985,9 +996,10 @@ def build_html(payload, plotly_script_tag: str):
       }};
 
       const traces = showHumanTrack ? [scoreTrace, gradeTrace, humanPresenceTrace] : [scoreTrace, gradeTrace];
+      const titleSuffix = nSequences ? ` (N=${{nSequences}})` : '';
 
       const layout = {{
-        title: `${{currentProtein}} - ${{currentDataset}}`,
+        title: `${{currentProtein}} - ${{currentDataset}}${{titleSuffix}}`,
         margin: {{ l: 65, r: 65, t: 55, b: 55 }},
         hovermode: 'x unified',
         xaxis: {{ title: 'Residue position' }},
@@ -1018,6 +1030,13 @@ def build_html(payload, plotly_script_tag: str):
       }};
 
       Plotly.newPlot(plotEl, traces, layout, {{ responsive: true }});
+      if (nSequences && msaSource) {{
+        datasetMetaEl.textContent = `N = ${{nSequences}} sequences | source: ${{msaSource}}`;
+      }} else if (nSequences) {{
+        datasetMetaEl.textContent = `N = ${{nSequences}} sequences`;
+      }} else {{
+        datasetMetaEl.textContent = 'N unavailable for this dataset.';
+      }}
 
       if (typeof plotEl.removeAllListeners === 'function') {{
         plotEl.removeAllListeners('plotly_click');
