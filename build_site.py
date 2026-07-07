@@ -722,6 +722,9 @@ def build_html(payload, plotly_script_tag: str):
     <div class=\"toolbar\">
       <label for=\"dataset\">Dataset:</label>
       <select id=\"dataset\"></select>
+      <input id="hl-start" type="number" min="1" step="1" placeholder="Start residue" style="width:130px;" />
+      <input id="hl-end" type="number" min="1" step="1" placeholder="End residue" style="width:130px;" />
+      <button id="hl-add" type="button">Add by residues</button>
       <div class=\"hint\">Hover points for exact residue number, amino acid, score, and grade.</div>
     </div>
 
@@ -777,9 +780,12 @@ def build_html(payload, plotly_script_tag: str):
     const msaCloseBtn = document.getElementById('msa-close');
     const pickBtn = document.getElementById('hl-pick');
     const clearBtn = document.getElementById('hl-clear');
+    const addBtn = document.getElementById('hl-add');
     const findBtn = document.getElementById('seq-find');
     const labelInput = document.getElementById('hl-label');
     const colorInput = document.getElementById('hl-color');
+    const startInput = document.getElementById('hl-start');
+    const endInput = document.getElementById('hl-end');
     const seqQueryInput = document.getElementById('seq-query');
 
     const proteins = Object.keys(proteinDatasets);
@@ -1000,6 +1006,30 @@ def build_html(payload, plotly_script_tag: str):
       selectedHighlightId = highlights[currentProtein][currentDataset][highlights[currentProtein][currentDataset].length - 1].id;
       renderPlot();
       setStatus(`Added highlight ${{s}}-${{e}}`);
+    }}
+
+    function addHighlightFromInputs() {{
+      const datasetRows = proteinDatasets[currentProtein][currentDataset]?.rows || [];
+      if (!datasetRows.length) {{
+        setStatus('No residues available for this dataset.');
+        return;
+      }}
+
+      const minResidue = datasetRows[0].pos;
+      const maxResidue = datasetRows[datasetRows.length - 1].pos;
+      const startVal = Number(startInput.value);
+      const endVal = Number(endInput.value);
+
+      if (!Number.isInteger(startVal) || !Number.isInteger(endVal)) {{
+        setStatus('Enter integer start and end residue counts.');
+        return;
+      }}
+      if (startVal < minResidue || startVal > maxResidue || endVal < minResidue || endVal > maxResidue) {{
+        setStatus(`Residues must be between ${{minResidue}} and ${{maxResidue}} for this dataset.`);
+        return;
+      }}
+
+      addHighlight(startVal, endVal, labelInput.value.trim(), colorInput.value);
     }}
 
     function addSearchHighlights(query) {{
@@ -1260,6 +1290,15 @@ def build_html(payload, plotly_script_tag: str):
       closeMsaModal();
       renderPlot();
       setStatus('Cleared highlights for current selection.');
+    }});
+
+    addBtn.addEventListener('click', addHighlightFromInputs);
+    [startInput, endInput].forEach((inputEl) => {{
+      inputEl.addEventListener('keydown', (ev) => {{
+        if (ev.key === 'Enter') {{
+          addHighlightFromInputs();
+        }}
+      }});
     }});
 
     msaCloseBtn.addEventListener('click', closeMsaModal);
