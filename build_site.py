@@ -379,38 +379,117 @@ def build_html(payload, plotly_script_tag: str):
       color: #64748b;
       font-size: 12px;
     }}
-    .msa-box {{
-      margin-top: 12px;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 10px;
+    .msa-overlay {{
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.62);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
     }}
-    .msa-box h4 {{
-      margin: 0 0 8px 0;
-      font-size: 14px;
+    .msa-overlay.open {{
+      display: flex;
+    }}
+    .msa-modal {{
+      width: min(92vw, 1600px);
+      height: min(88vh, 980px);
+      background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 18px;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      overflow: hidden;
+    }}
+    .msa-head {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px 10px 18px;
+      border-bottom: 1px solid #e2e8f0;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(8px);
+    }}
+    .msa-title {{
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+    }}
+    .msa-close {{
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #e2e8f0;
+      border-color: #cbd5e1;
     }}
     .msa-meta {{
       font-size: 12px;
       color: #475569;
-      margin-bottom: 8px;
+      padding: 10px 18px;
+      border-bottom: 1px solid #e2e8f0;
+      background: rgba(248,250,252,0.9);
     }}
-    .msa-pre {{
-      font-family: Consolas, "Courier New", monospace;
-      font-size: 11px;
-      line-height: 1.35;
-      white-space: pre;
+    .msa-scroll {{
       overflow: auto;
-      max-height: 360px;
-      background: #0f172a;
-      color: #e2e8f0;
-      border-radius: 8px;
-      padding: 10px;
+      padding: 14px 18px 18px 18px;
+      background:
+        radial-gradient(circle at top left, rgba(191,219,254,0.35), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(254,202,202,0.25), transparent 24%),
+        #0f172a;
     }}
+    .msa-row {{
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 6px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+    }}
+    .msa-name {{
+      position: sticky;
+      left: 0;
+      background: rgba(15, 23, 42, 0.92);
+      color: #cbd5e1;
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }}
+    .msa-seq {{
+      white-space: pre;
+      color: #e5e7eb;
+      letter-spacing: 0.02em;
+    }}
+    .aa-gap {{ color: #475569; }}
+    .aa-hydrophobic {{ color: #fbbf24; font-weight: 700; }}
+    .aa-polar {{ color: #86efac; font-weight: 700; }}
+    .aa-positive {{ color: #93c5fd; font-weight: 700; }}
+    .aa-negative {{ color: #fca5a5; font-weight: 700; }}
+    .aa-gly {{ color: #c4b5fd; font-weight: 700; }}
+    .aa-pro {{ color: #f9a8d4; font-weight: 700; }}
+    .aa-cys {{ color: #67e8f9; font-weight: 700; }}
+    .aa-aromatic {{ color: #fdba74; font-weight: 700; }}
     @media (max-width: 1000px) {{
       .panel {{
         grid-template-columns: 1fr;
       }}
       .highlights {{
         max-height: none;
+      }}
+      .msa-modal {{
+        width: 96vw;
+        height: 92vh;
+      }}
+      .msa-row {{
+        grid-template-columns: 1fr;
+      }}
+      .msa-name {{
+        position: static;
       }}
     }}
   </style>
@@ -445,12 +524,19 @@ def build_html(payload, plotly_script_tag: str):
       <div class=\"highlights\">
         <h3>Highlights</h3>
         <ul id=\"highlight-list\"></ul>
-        <div class="msa-box">
-          <h4>MSA slice</h4>
-          <div class="msa-meta" id="msa-meta">Select or create a highlight to view the aligned region.</div>
-          <pre class="msa-pre" id="msa-view"></pre>
-        </div>
+        <div class="empty" style="margin-top:12px;">Click a highlight to open the colored MSA slice viewer.</div>
       </div>
+    </div>
+  </div>
+
+  <div class="msa-overlay" id="msa-overlay">
+    <div class="msa-modal">
+      <div class="msa-head">
+        <div class="msa-title">MSA Slice Viewer</div>
+        <button class="msa-close" id="msa-close" type="button">Close</button>
+      </div>
+      <div class="msa-meta" id="msa-meta">Select or create a highlight to view the aligned region.</div>
+      <div class="msa-scroll" id="msa-view"></div>
     </div>
   </div>
 
@@ -462,8 +548,10 @@ def build_html(payload, plotly_script_tag: str):
     const plotEl = document.getElementById('plot');
     const listEl = document.getElementById('highlight-list');
     const statusEl = document.getElementById('status');
+    const msaOverlayEl = document.getElementById('msa-overlay');
     const msaMetaEl = document.getElementById('msa-meta');
     const msaViewEl = document.getElementById('msa-view');
+    const msaCloseBtn = document.getElementById('msa-close');
     const pickBtn = document.getElementById('hl-pick');
     const clearBtn = document.getElementById('hl-clear');
     const findBtn = document.getElementById('seq-find');
@@ -514,7 +602,42 @@ def build_html(payload, plotly_script_tag: str):
     function setSelectedHighlight(id) {{
       selectedHighlightId = id;
       renderHighlightList();
+      openMsaModal();
+    }}
+
+    function closeMsaModal() {{
+      msaOverlayEl.classList.remove('open');
+    }}
+
+    function openMsaModal() {{
       renderMsaSlice();
+      msaOverlayEl.classList.add('open');
+    }}
+
+    function escapeHtml(value) {{
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }}
+
+    function aaClass(aa) {{
+      if (aa === '-') return 'aa-gap';
+      if ('AILMV'.includes(aa)) return 'aa-hydrophobic';
+      if ('STNQH'.includes(aa)) return 'aa-polar';
+      if ('KR'.includes(aa)) return 'aa-positive';
+      if ('DE'.includes(aa)) return 'aa-negative';
+      if (aa === 'G') return 'aa-gly';
+      if (aa === 'P') return 'aa-pro';
+      if (aa === 'C') return 'aa-cys';
+      if ('FWY'.includes(aa)) return 'aa-aromatic';
+      return '';
+    }}
+
+    function renderColoredSeq(seq) {{
+      return seq.split('').map((aa) => `<span class="${{aaClass(aa)}}">${{escapeHtml(aa)}}</span>`).join('');
     }}
 
     function renderTabs() {{
@@ -553,7 +676,7 @@ def build_html(payload, plotly_script_tag: str):
         empty.textContent = 'No highlights yet.';
         listEl.appendChild(empty);
         selectedHighlightId = null;
-        renderMsaSlice();
+        closeMsaModal();
         return;
       }}
 
@@ -592,7 +715,6 @@ def build_html(payload, plotly_script_tag: str):
         li.appendChild(del);
         listEl.appendChild(li);
       }});
-      renderMsaSlice();
     }}
 
     function buildHighlightShapes() {{
@@ -675,12 +797,12 @@ def build_html(payload, plotly_script_tag: str):
       const hl = getSelectedHighlight();
       if (!hl) {{
         msaMetaEl.textContent = 'Select or create a highlight to view the aligned region.';
-        msaViewEl.textContent = '';
+        msaViewEl.innerHTML = '';
         return;
       }}
       if (!msa || !msa.pos_to_col) {{
         msaMetaEl.textContent = `MSA slice unavailable for ${{hl.label}}.`;
-        msaViewEl.textContent = '';
+        msaViewEl.innerHTML = '';
         return;
       }}
 
@@ -688,17 +810,20 @@ def build_html(payload, plotly_script_tag: str):
       const endCol = msa.pos_to_col[String(hl.end)] ?? msa.pos_to_col[hl.end];
       if (startCol === undefined || endCol === undefined) {{
         msaMetaEl.textContent = `Could not map ${{hl.start}}-${{hl.end}} onto the aligned MSA.`;
-        msaViewEl.textContent = '';
+        msaViewEl.innerHTML = '';
         return;
       }}
 
       const flank = 5;
       const fromCol = Math.max(0, Math.min(startCol, endCol) - flank);
       const toCol = Math.min(msa.aligned_length - 1, Math.max(startCol, endCol) + flank);
-      const width = Math.max(...msa.records.map((r) => r.name.length), 12);
-      const lines = msa.records.map((r) => `${{r.name.padEnd(width)}}  ${{r.seq.slice(fromCol, toCol + 1)}}`);
       msaMetaEl.textContent = `${{hl.label}} | query residues ${{hl.start}}-${{hl.end}} | aligned columns ${{fromCol + 1}}-${{toCol + 1}}`;
-      msaViewEl.textContent = lines.join('\\n');
+      msaViewEl.innerHTML = msa.records.map((r) => `
+        <div class="msa-row">
+          <div class="msa-name">${{escapeHtml(r.name)}}</div>
+          <div class="msa-seq">${{renderColoredSeq(r.seq.slice(fromCol, toCol + 1))}}</div>
+        </div>
+      `).join('');
     }}
 
     function renderPlot() {{
@@ -856,8 +981,14 @@ def build_html(payload, plotly_script_tag: str):
     clearBtn.addEventListener('click', () => {{
       highlights[currentProtein][currentDataset] = [];
       selectedHighlightId = null;
+      closeMsaModal();
       renderPlot();
       setStatus('Cleared highlights for current selection.');
+    }});
+
+    msaCloseBtn.addEventListener('click', closeMsaModal);
+    msaOverlayEl.addEventListener('click', (ev) => {{
+      if (ev.target === msaOverlayEl) closeMsaModal();
     }});
 
     findBtn.addEventListener('click', () => {{
