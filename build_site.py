@@ -73,6 +73,39 @@ def parse_grades(grades_path: Path):
     return rows
 
 
+def query_name_from_grades_path(grades_path: Path):
+    return grades_path.stem.removesuffix("_consurf")
+
+
+def parse_msa_for_viewer(msa_path: Path, query_name: str):
+    records = read_fasta(msa_path)
+    if not records:
+        return None
+
+    query_seq = None
+    for header, seq in records:
+        if header == query_name:
+            query_seq = seq
+            break
+
+    if query_seq is None:
+        return None
+
+    pos_to_col = {}
+    query_pos = 0
+    for col_idx, aa in enumerate(query_seq):
+        if aa != "-":
+            query_pos += 1
+            pos_to_col[query_pos] = col_idx
+
+    return {
+        "query_name": query_name,
+        "aligned_length": len(query_seq),
+        "pos_to_col": pos_to_col,
+        "records": [{"name": header, "seq": seq} for header, seq in records],
+    }
+
+
 def make_plotly_script(embed_plotly: bool):
     if not embed_plotly:
         return f'<script src="{PLOTLY_CDN}"></script>'
@@ -179,7 +212,7 @@ def gather_data(project_root: Path):
             if not source_path.exists():
                 raise FileNotFoundError(f"Missing expected source alignment: {source_path}")
             if source_query_key:
-              invertebrate_mapping = compute_human_mapping_from_source(source_path, source_query_key)
+                invertebrate_mapping = compute_human_mapping_from_source(source_path, source_query_key)
 
         for dataset_name, path in datasets.items():
             if dataset_name.startswith("_"):
@@ -187,19 +220,25 @@ def gather_data(project_root: Path):
             if not path.exists():
                 raise FileNotFoundError(f"Missing expected grades file: {path}")
             rows = parse_grades(path)
+            query_name = query_name_from_grades_path(path)
+            msa_path = path.with_name(f"{query_name}_msa_file.fas")
+            msa_data = None
+            if msa_path.exists():
+                msa_data = parse_msa_for_viewer(msa_path, query_name)
             human_presence = None
             if dataset_name == "Full":
-              human_presence = [
-                {"present": 1, "aa": row["aa"], "count": row["pos"]}
-                for row in rows
-              ]
+                human_presence = [
+                    {"present": 1, "aa": row["aa"], "count": row["pos"]}
+                    for row in rows
+                ]
             elif dataset_name == "Invertebrates" and invertebrate_mapping is not None:
-              if len(invertebrate_mapping) == len(rows):
-                human_presence = invertebrate_mapping
+                if len(invertebrate_mapping) == len(rows):
+                    human_presence = invertebrate_mapping
 
             payload[protein][dataset_name] = {
                 "rows": rows,
                 "human_presence": human_presence,
+                "msa": msa_data,
             }
     return payload
 
@@ -322,6 +361,11 @@ def build_html(payload, plotly_script_tag: str):
       padding: 6px 8px;
       font-size: 12px;
       background: #f8fafc;
+      cursor: pointer;
+    }}
+    .highlights li.selected {{
+      border-color: #2563eb;
+      background: #dbeafe;
     }}
     .chip {{
       width: 10px;
@@ -334,6 +378,32 @@ def build_html(payload, plotly_script_tag: str):
     .empty {{
       color: #64748b;
       font-size: 12px;
+    }}
+    .msa-box {{
+      margin-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+    }}
+    .msa-box h4 {{
+      margin: 0 0 8px 0;
+      font-size: 14px;
+    }}
+    .msa-meta {{
+      font-size: 12px;
+      color: #475569;
+      margin-bottom: 8px;
+    }}
+    .msa-pre {{
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.35;
+      white-space: pre;
+      overflow: auto;
+      max-height: 360px;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
     }}
     @media (max-width: 1000px) {{
       .panel {{
@@ -375,6 +445,11 @@ def build_html(payload, plotly_script_tag: str):
       <div class=\"highlights\">
         <h3>Highlights</h3>
         <ul id=\"highlight-list\"></ul>
+        <div class="msa-box">
+          <h4>MSA slice</h4>
+          <div class="msa-meta" id="msa-meta">Select or create a highlight to view the aligned region.</div>
+          <pre class="msa-pre" id="msa-view"></pre>
+        </div>
       </div>
     </div>
   </div>
@@ -387,6 +462,8 @@ def build_html(payload, plotly_script_tag: str):
     const plotEl = document.getElementById('plot');
     const listEl = document.getElementById('highlight-list');
     const statusEl = document.getElementById('status');
+    const msaMetaEl = document.getElementById('msa-meta');
+    const msaViewEl = document.getElementById('msa-view');
     const pickBtn = document.getElementById('hl-pick');
     const clearBtn = document.getElementById('hl-clear');
     const findBtn = document.getElementById('seq-find');
@@ -397,6 +474,7 @@ def build_html(payload, plotly_script_tag: str):
     const proteins = Object.keys(proteinDatasets);
     let currentProtein = proteins[0];
     let currentDataset = Object.keys(proteinDatasets[currentProtein])[0];
+    let selectedHighlightId = null;
 
     const highlights = {{}};
     proteins.forEach((protein) => {{
@@ -423,6 +501,20 @@ def build_html(payload, plotly_script_tag: str):
 
     function removeSearchHighlights() {{
       highlights[currentProtein][currentDataset] = highlights[currentProtein][currentDataset].filter((row) => !row.isSearch);
+    }}
+
+    function getCurrentHighlights() {{
+      return highlights[currentProtein][currentDataset];
+    }}
+
+    function getSelectedHighlight() {{
+      return getCurrentHighlights().find((row) => row.id === selectedHighlightId) || null;
+    }}
+
+    function setSelectedHighlight(id) {{
+      selectedHighlightId = id;
+      renderHighlightList();
+      renderMsaSlice();
     }}
 
     function renderTabs() {{
@@ -453,18 +545,28 @@ def build_html(payload, plotly_script_tag: str):
     }}
 
     function renderHighlightList() {{
-      const rows = highlights[currentProtein][currentDataset];
+      const rows = getCurrentHighlights();
       listEl.innerHTML = '';
       if (!rows.length) {{
         const empty = document.createElement('div');
         empty.className = 'empty';
         empty.textContent = 'No highlights yet.';
         listEl.appendChild(empty);
+        selectedHighlightId = null;
+        renderMsaSlice();
         return;
+      }}
+
+      if (!rows.some((row) => row.id === selectedHighlightId)) {{
+        selectedHighlightId = rows[rows.length - 1].id;
       }}
 
       rows.forEach((row) => {{
         const li = document.createElement('li');
+        if (row.id === selectedHighlightId) {{
+          li.classList.add('selected');
+        }}
+        li.addEventListener('click', () => setSelectedHighlight(row.id));
         const left = document.createElement('div');
 
         const chip = document.createElement('span');
@@ -479,7 +581,8 @@ def build_html(payload, plotly_script_tag: str):
         const del = document.createElement('button');
         del.type = 'button';
         del.textContent = 'Delete';
-        del.addEventListener('click', () => {{
+        del.addEventListener('click', (ev) => {{
+          ev.stopPropagation();
           highlights[currentProtein][currentDataset] = highlights[currentProtein][currentDataset].filter((r) => r.id !== row.id);
           renderPlot();
           setStatus(`Removed highlight ${{row.start}}-${{row.end}}`);
@@ -489,6 +592,7 @@ def build_html(payload, plotly_script_tag: str):
         li.appendChild(del);
         listEl.appendChild(li);
       }});
+      renderMsaSlice();
     }}
 
     function buildHighlightShapes() {{
@@ -517,6 +621,7 @@ def build_html(payload, plotly_script_tag: str):
         color: color || '#f59e0b',
         isSearch: false
       }});
+      selectedHighlightId = highlights[currentProtein][currentDataset][highlights[currentProtein][currentDataset].length - 1].id;
       renderPlot();
       setStatus(`Added highlight ${{s}}-${{e}}`);
     }}
@@ -557,8 +662,43 @@ def build_html(payload, plotly_script_tag: str):
           isSearch: true
         }});
       }});
+      if (highlights[currentProtein][currentDataset].length) {{
+        selectedHighlightId = highlights[currentProtein][currentDataset][highlights[currentProtein][currentDataset].length - matches.length].id;
+      }}
       renderPlot();
       setStatus(`Found ${{matches.length}} match(es) for ${{motif}}.`);
+    }}
+
+    function renderMsaSlice() {{
+      const datasetObj = proteinDatasets[currentProtein][currentDataset];
+      const msa = datasetObj.msa;
+      const hl = getSelectedHighlight();
+      if (!hl) {{
+        msaMetaEl.textContent = 'Select or create a highlight to view the aligned region.';
+        msaViewEl.textContent = '';
+        return;
+      }}
+      if (!msa || !msa.pos_to_col) {{
+        msaMetaEl.textContent = `MSA slice unavailable for ${{hl.label}}.`;
+        msaViewEl.textContent = '';
+        return;
+      }}
+
+      const startCol = msa.pos_to_col[String(hl.start)] ?? msa.pos_to_col[hl.start];
+      const endCol = msa.pos_to_col[String(hl.end)] ?? msa.pos_to_col[hl.end];
+      if (startCol === undefined || endCol === undefined) {{
+        msaMetaEl.textContent = `Could not map ${{hl.start}}-${{hl.end}} onto the aligned MSA.`;
+        msaViewEl.textContent = '';
+        return;
+      }}
+
+      const flank = 5;
+      const fromCol = Math.max(0, Math.min(startCol, endCol) - flank);
+      const toCol = Math.min(msa.aligned_length - 1, Math.max(startCol, endCol) + flank);
+      const width = Math.max(...msa.records.map((r) => r.name.length), 12);
+      const lines = msa.records.map((r) => `${{r.name.padEnd(width)}}  ${{r.seq.slice(fromCol, toCol + 1)}}`);
+      msaMetaEl.textContent = `${{hl.label}} | query residues ${{hl.start}}-${{hl.end}} | aligned columns ${{fromCol + 1}}-${{toCol + 1}}`;
+      msaViewEl.textContent = lines.join('\n');
     }}
 
     function renderPlot() {{
@@ -715,6 +855,7 @@ def build_html(payload, plotly_script_tag: str):
 
     clearBtn.addEventListener('click', () => {{
       highlights[currentProtein][currentDataset] = [];
+      selectedHighlightId = null;
       renderPlot();
       setStatus('Cleared highlights for current selection.');
     }});
@@ -735,6 +876,7 @@ def build_html(payload, plotly_script_tag: str):
     }});
 
     function renderAll() {{
+      selectedHighlightId = null;
       renderTabs();
       renderDatasetSelect();
       renderPlot();
