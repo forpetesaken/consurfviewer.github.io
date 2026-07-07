@@ -193,9 +193,10 @@ def build_html(payload, plotly_script_tag: str):
       color: #1f2937;
     }}
     .wrap {{
-      max-width: 1280px;
-      margin: 20px auto;
-      padding: 0 16px;
+      width: min(98vw, 2200px);
+      max-width: 2200px;
+      margin: 12px auto;
+      padding: 0 12px;
     }}
     .tabs {{
       display: flex;
@@ -251,12 +252,13 @@ def build_html(payload, plotly_script_tag: str):
     }}
     .panel {{
       display: grid;
-      grid-template-columns: 1fr 330px;
+      grid-template-columns: minmax(0, 1fr) 280px;
       gap: 12px;
     }}
     #plot {{
       width: 100%;
-      height: 740px;
+      height: 82vh;
+      min-height: 740px;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       background: #fff;
@@ -266,7 +268,8 @@ def build_html(payload, plotly_script_tag: str):
       border-radius: 10px;
       background: #fff;
       padding: 10px;
-      max-height: 740px;
+      max-height: 82vh;
+      min-height: 740px;
       overflow: auto;
     }}
     .highlights h3 {{
