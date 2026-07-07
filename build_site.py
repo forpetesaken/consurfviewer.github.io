@@ -6,6 +6,28 @@ from urllib.request import urlopen
 PLOTLY_CDN = "https://cdn.plot.ly/plotly-2.35.2.min.js"
 
 
+def read_fasta(path: Path):
+    records = []
+    header = None
+    buf = []
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if line.startswith(">"):
+            if header is not None:
+                records.append((header, "".join(buf)))
+            header = line[1:].strip()
+            buf = []
+        else:
+            if header is None:
+                raise ValueError(f"Invalid FASTA: {path}")
+            buf.append(line)
+    if header is not None:
+        records.append((header, "".join(buf)))
+    return records
+
+
 def parse_grades(grades_path: Path):
     rows = []
     with grades_path.open("r", encoding="utf-8") as handle:
@@ -60,42 +82,91 @@ def make_plotly_script(embed_plotly: bool):
     return f"<script>{plotly_js}</script>"
 
 
+def compute_human_presence_from_source(source_path: Path):
+    records = read_fasta(source_path)
+    human_seq = None
+    ciona_seq = None
+    for header, seq in records:
+        lower = header.lower()
+        if human_seq is None and ("homo_sapiens" in lower or "human" in lower):
+            human_seq = seq
+        if ciona_seq is None and "ciona_intestinalis" in lower:
+            ciona_seq = seq
+
+    if human_seq is None or ciona_seq is None:
+        return None
+    if len(human_seq) != len(ciona_seq):
+        return None
+
+    presence = []
+    for human_char, ciona_char in zip(human_seq, ciona_seq):
+        if ciona_char != "-":
+            presence.append(1 if human_char != "-" else None)
+    return presence
+
+
 def gather_data(project_root: Path):
     cfg = {
         "RAD21": {
             "Full": project_root / "ConSurf/output/RAD21/rad21_consurf_full/Human_RAD21_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/RAD21/rad21_consurf_vertebrates/Human_RAD21_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/RAD21/rad21_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+            "_source": project_root / "ConSurf/input_splits/RAD21/rad21_full_reduced50.fasta",
         },
         "STAG1": {
             "Full": project_root / "ConSurf/output/STAG1/stag1_consurf_full/Human_STAG1_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_vertebrates/Human_STAG1_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+            "_source": project_root / "ConSurf/input_splits/STAG1/stag1_full_reduced50.fasta",
         },
         "STAG2": {
             "Full": project_root / "ConSurf/output/STAG2/stag2_consurf_full/Human_STAG2_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/STAG2/stag2_consurf_vertebrates/Human_STAG2_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/STAG2/stag2_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+            "_source": project_root / "ConSurf/input_splits/STAG2/stag2_full_reduced50.fasta",
         },
         "CTCF": {
-          "Full": project_root / "ConSurf/output/CTCF/ctcf_consurf_run/Human_CTCF_consurf.grades",
-          "Vertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_vertebrates/Human_CTCF_consurf.grades",
-          "Invertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+            "Full": project_root / "ConSurf/output/CTCF/ctcf_consurf_run/Human_CTCF_consurf.grades",
+            "Vertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_vertebrates/Human_CTCF_consurf.grades",
+            "Invertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+            "_source": None,
         },
         "WAPL": {
-          "Full": project_root / "ConSurf/output/WAPL/wapl_consurf_full/Human_WAPL_consurf.grades",
-          "Vertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_vertebrates/Human_WAPL_consurf.grades",
-          "Invertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+            "Full": project_root / "ConSurf/output/WAPL/wapl_consurf_full/Human_WAPL_consurf.grades",
+            "Vertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_vertebrates/Human_WAPL_consurf.grades",
+            "Invertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+            "_source": project_root / "ConSurf/input_splits/WAPL/wapl_full_reduced50.fasta",
         },
     }
 
     payload = {}
     for protein, datasets in cfg.items():
         payload[protein] = {}
+        source_path = datasets.get("_source")
+        invertebrate_presence = None
+        if source_path:
+            if not source_path.exists():
+                raise FileNotFoundError(f"Missing expected source alignment: {source_path}")
+            invertebrate_presence = compute_human_presence_from_source(source_path)
+
         for dataset_name, path in datasets.items():
+            if dataset_name.startswith("_"):
+                continue
             if not path.exists():
                 raise FileNotFoundError(f"Missing expected grades file: {path}")
-            payload[protein][dataset_name] = parse_grades(path)
+            rows = parse_grades(path)
+            human_presence = None
+            if dataset_name == "Full":
+                human_presence = [1] * len(rows)
+            elif dataset_name == "Invertebrates" and invertebrate_presence is not None:
+                human_presence = invertebrate_presence[: len(rows)]
+                if len(human_presence) < len(rows):
+                    human_presence = human_presence + [None] * (len(rows) - len(human_presence))
+
+            payload[protein][dataset_name] = {
+                "rows": rows,
+                "human_presence": human_presence,
+            }
     return payload
 
 
@@ -402,11 +473,17 @@ def build_html(payload, plotly_script_tag: str):
     }}
 
     function renderPlot() {{
-      const data = proteinDatasets[currentProtein][currentDataset];
+      const datasetObj = proteinDatasets[currentProtein][currentDataset];
+      const data = datasetObj.rows;
       const x = data.map((r) => r.pos);
       const score = data.map((r) => r.score);
       const grade = data.map((r) => r.grade);
       const custom = data.map((r) => [r.aa, r.grade, r.low_conf ? 'yes' : 'no', r.score]);
+      const humanPresence = datasetObj.human_presence || null;
+      const showHumanTrack =
+        (currentDataset === 'Full' || currentDataset === 'Invertebrates') &&
+        Array.isArray(humanPresence) &&
+        humanPresence.length === x.length;
 
       const scoreTrace = {{
         x: x,
@@ -451,6 +528,21 @@ def build_html(payload, plotly_script_tag: str):
         yaxis: 'y2'
       }};
 
+      const humanPresenceTrace = {{
+        x: x,
+        y: humanPresence,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Human sequence present',
+        line: {{ color: '#059669', width: 6, shape: 'hv' }},
+        hovertemplate:
+          'Residue: %{{x}}<br>' +
+          'Human sequence present here: yes<extra></extra>',
+        yaxis: 'y3'
+      }};
+
+      const traces = showHumanTrack ? [scoreTrace, gradeTrace, humanPresenceTrace] : [scoreTrace, gradeTrace];
+
       const layout = {{
         title: `${{currentProtein}} - ${{currentDataset}}`,
         margin: {{ l: 65, r: 65, t: 55, b: 55 }},
@@ -460,19 +552,29 @@ def build_html(payload, plotly_script_tag: str):
           title: 'Normalized score',
           zeroline: true,
           zerolinecolor: '#94a3b8',
-          domain: [0.35, 1.0]
+          domain: showHumanTrack ? [0.46, 1.0] : [0.35, 1.0]
         }},
         yaxis2: {{
           title: 'ConSurf grade',
-          domain: [0.0, 0.24],
+          domain: showHumanTrack ? [0.16, 0.32] : [0.0, 0.24],
           range: [0.5, 9.5],
           tickvals: [1,2,3,4,5,6,7,8,9]
+        }},
+        yaxis3: {{
+          title: 'Human present',
+          domain: showHumanTrack ? [0.0, 0.07] : [0.0, 0.0],
+          range: [0, 1.2],
+          tickvals: [1],
+          ticktext: ['yes'],
+          visible: showHumanTrack,
+          showgrid: false,
+          zeroline: false
         }},
         shapes: buildHighlightShapes(),
         legend: {{ orientation: 'h' }}
       }};
 
-      Plotly.newPlot(plotEl, [scoreTrace, gradeTrace], layout, {{ responsive: true }});
+      Plotly.newPlot(plotEl, traces, layout, {{ responsive: true }});
 
       if (typeof plotEl.removeAllListeners === 'function') {{
         plotEl.removeAllListeners('plotly_click');
@@ -495,7 +597,11 @@ def build_html(payload, plotly_script_tag: str):
 
       renderHighlightList();
       if (!pickMode) {{
-        setStatus('Click Pick from plot, then click two residues to create a highlight.');
+        if ((currentDataset === 'Full' || currentDataset === 'Invertebrates') && !showHumanTrack) {{
+          setStatus('Click Pick from plot, then click two residues to create a highlight. Human-presence track unavailable for this dataset.');
+        }} else {{
+          setStatus('Click Pick from plot, then click two residues to create a highlight.');
+        }}
       }}
     }}
 
