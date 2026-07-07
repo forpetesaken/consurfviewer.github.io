@@ -78,9 +78,14 @@ def gather_data(project_root: Path):
             "Invertebrates": project_root / "ConSurf/output/STAG2/stag2_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
         },
         "CTCF": {
-            "Full": project_root / "ConSurf/output/ctcf_consurf_run/Human_CTCF_consurf.grades",
-            "Vertebrates": project_root / "ConSurf/output/ctcf_consurf_vertebrates/Human_CTCF_consurf.grades",
-            "Invertebrates": project_root / "ConSurf/output/ctcf_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+          "Full": project_root / "ConSurf/output/CTCF/ctcf_consurf_run/Human_CTCF_consurf.grades",
+          "Vertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_vertebrates/Human_CTCF_consurf.grades",
+          "Invertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+        },
+        "WAPL": {
+          "Full": project_root / "ConSurf/output/WAPL/wapl_consurf_full/Human_WAPL_consurf.grades",
+          "Vertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_vertebrates/Human_WAPL_consurf.grades",
+          "Invertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
         },
     }
 
