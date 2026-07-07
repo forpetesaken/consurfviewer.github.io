@@ -468,9 +468,9 @@ def build_html(payload, plotly_script_tag: str):
       overflow: auto;
       padding: 14px 18px 18px 18px;
       background:
-        radial-gradient(circle at top left, rgba(191,219,254,0.35), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(254,202,202,0.25), transparent 24%),
-        #0f172a;
+        radial-gradient(circle at top left, rgba(191,219,254,0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(254,202,202,0.16), transparent 24%),
+        #ffffff;
     }}
     .msa-row {{
       display: grid;
@@ -485,8 +485,9 @@ def build_html(payload, plotly_script_tag: str):
     .msa-name {{
       position: sticky;
       left: 0;
-      background: rgba(15, 23, 42, 0.92);
-      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.96);
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
       padding: 2px 6px;
       border-radius: 6px;
       white-space: nowrap;
