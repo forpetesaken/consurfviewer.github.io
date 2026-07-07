@@ -461,19 +461,35 @@ def build_html(payload, plotly_script_tag: str):
       text-overflow: ellipsis;
     }}
     .msa-seq {{
-      white-space: pre;
-      color: #e5e7eb;
-      letter-spacing: 0.02em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      align-items: flex-start;
+      align-content: flex-start;
     }}
-    .aa-gap {{ color: #475569; }}
-    .aa-hydrophobic {{ color: #fbbf24; font-weight: 700; }}
-    .aa-polar {{ color: #86efac; font-weight: 700; }}
-    .aa-positive {{ color: #93c5fd; font-weight: 700; }}
-    .aa-negative {{ color: #fca5a5; font-weight: 700; }}
-    .aa-gly {{ color: #c4b5fd; font-weight: 700; }}
-    .aa-pro {{ color: #f9a8d4; font-weight: 700; }}
-    .aa-cys {{ color: #67e8f9; font-weight: 700; }}
-    .aa-aromatic {{ color: #fdba74; font-weight: 700; }}
+    .aa-box {{
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      color: #e5e7eb;
+      background: rgba(51, 65, 85, 0.95);
+    }}
+    .aa-gap {{ background: rgba(71, 85, 105, 0.55); color: #94a3b8; }}
+    .aa-hydrophobic {{ background: #92400e; color: #fde68a; }}
+    .aa-polar {{ background: #166534; color: #dcfce7; }}
+    .aa-positive {{ background: #1d4ed8; color: #dbeafe; }}
+    .aa-negative {{ background: #991b1b; color: #fee2e2; }}
+    .aa-gly {{ background: #6d28d9; color: #ede9fe; }}
+    .aa-pro {{ background: #be185d; color: #fce7f3; }}
+    .aa-cys {{ background: #155e75; color: #cffafe; }}
+    .aa-aromatic {{ background: #9a3412; color: #ffedd5; }}
     @media (max-width: 1000px) {{
       .panel {{
         grid-template-columns: 1fr;
@@ -637,7 +653,10 @@ def build_html(payload, plotly_script_tag: str):
     }}
 
     function renderColoredSeq(seq) {{
-      return seq.split('').map((aa) => `<span class="${{aaClass(aa)}}">${{escapeHtml(aa)}}</span>`).join('');
+      return seq
+        .split('')
+        .map((aa) => `<span class="aa-box ${{aaClass(aa)}}">${{escapeHtml(aa)}}</span>`)
+        .join('');
     }}
 
     function renderTabs() {{
