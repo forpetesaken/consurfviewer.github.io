@@ -444,10 +444,10 @@ def build_html(payload, plotly_script_tag: str):
       grid-template-columns: 240px 1fr;
       gap: 12px;
       align-items: start;
-      margin-bottom: 2px;
+      margin-bottom: 0;
       font-family: Consolas, "Courier New", monospace;
       font-size: 12px;
-      line-height: 1.35;
+      line-height: 1;
     }}
     .msa-name {{
       position: sticky;
