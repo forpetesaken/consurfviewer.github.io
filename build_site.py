@@ -1042,7 +1042,7 @@ def build_html(payload, plotly_script_tag: str):
       sections.forEach((text) => {{
         const line = String(text || '');
 
-        const rangeRegex = /\b([0-9]{{1,5}}) *- *([0-9]{{1,5}})\b/g;
+        const rangeRegex = /\\b([0-9]{{1,5}}) *- *([0-9]{{1,5}})\\b/g;
         let rangeMatch;
         while ((rangeMatch = rangeRegex.exec(line)) !== null) {{
           templates.push({{
@@ -1052,7 +1052,7 @@ def build_html(payload, plotly_script_tag: str):
           }});
         }}
 
-        const residueRegex = /\b([A-Z])([0-9]{{1,5}})\b/g;
+        const residueRegex = /\\b([A-Z])([0-9]{{1,5}})\\b/g;
         let residueMatch;
         while ((residueMatch = residueRegex.exec(line)) !== null) {{
           templates.push({{
