@@ -376,13 +376,12 @@ def build_html(payload, plotly_script_tag: str):
       "PDS5A": {
         "summary": "PDS5A is a cohesin regulatory factor that binds cohesin and WAPL to tune residence time and release dynamics on chromatin.",
         "sections": [
-          "Conserved HEAT-repeat architecture supports broad protein interaction surfaces across metazoans.",
-          "PDS5A forms functional interfaces with cohesin and WAPL that regulate cohesin unloading behavior.",
-          "Comparative conservation across vertebrate and invertebrate sets highlights structurally constrained core regions.",
+          "External residue-level evidence (UniProt Q29RF7) includes PTM sites S1097 and K1146 in the C-terminal regulatory region.",
+          "A compact PTM cluster is annotated at S1195, T1208 and K1211.",
+          "Additional externally curated PTM residues include K1290 and S1305.",
         ],
         "citations": [
-          {"label": "UniProt Q86YN6", "url": "https://www.uniprot.org/uniprotkb/Q86YN6/entry"},
-          {"label": "PMID 19696148", "url": "https://pubmed.ncbi.nlm.nih.gov/19696148/"},
+          {"label": "UniProt Q29RF7", "url": "https://www.uniprot.org/uniprotkb/Q29RF7/entry"},
         ],
       },
       "NIPBL": {
