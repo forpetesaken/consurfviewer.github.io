@@ -301,14 +301,16 @@ def build_html(payload, plotly_script_tag: str):
       "CTCF": {
         "summary": "CTCF is a chromatin architectural factor that positions loop boundaries and recruits cohesin to specific DNA elements.",
         "sections": [
+          "KTYQR motif 39-43 lies in the N-terminal regulatory region associated with chromatin-linked CTCF activity.",
+          "YDF motif 226-228 is positioned near the transition into the DNA-binding core and is useful as a conserved anchor feature.",
+          "Lysine-rich linker segment 214-224 (KKTKKTKKSKL) provides a basic connector between N-terminal and zinc-finger regions.",
           "ZF array 266-577 mediates sequence-specific DNA binding that underlies boundary/insulator function.",
-          "R339, K344, H345 and R448 are tumor-associated zinc-finger residues where substitutions alter DNA-binding behavior.",
-          "R567W (ZF11) is a disease variant linked to neurodevelopmental phenotypes.",
         ],
         "citations": [
           {"label": "UniProt P49711", "url": "https://www.uniprot.org/uniprotkb/P49711/entry"},
-          {"label": "PMID 11782357", "url": "https://pubmed.ncbi.nlm.nih.gov/11782357/"},
-          {"label": "PMID 23746550", "url": "https://pubmed.ncbi.nlm.nih.gov/23746550/"},
+          {"label": "PMID 8649389", "url": "https://pubmed.ncbi.nlm.nih.gov/8649389/"},
+          {"label": "PMID 17827499", "url": "https://pubmed.ncbi.nlm.nih.gov/17827499/"},
+          {"label": "PMID 18550811", "url": "https://pubmed.ncbi.nlm.nih.gov/18550811/"},
         ],
       },
       "RAD21": {
@@ -326,29 +328,29 @@ def build_html(payload, plotly_script_tag: str):
         ],
       },
       "STAG1": {
-        "summary": "STAG1 is a cohesin SA subunit; disease-linked residues and the SCD region mark positions likely important for cohesin assembly and chromatin functions.",
+        "summary": "STAG1 is a cohesin SA subunit whose SCD/HEAT architecture supports cohesin assembly and chromatin interactions.",
         "sections": [
           "SCD domain 296-381 is a conserved STAG family module in the cohesin-associated scaffold.",
-          "MRD47-associated residues Q214, R216, H220, Q333, W351, Q373, P478 and R979 identify function-sensitive positions.",
-          "Additional patient variants I85 and C377 have been reported in cohesinopathy cohorts.",
+          "HEAT-repeat arm (approximately 86-915) forms a structural platform for cohesin-partner interactions.",
+          "Regulatory phosphosites around S1062 and S1093 mark a C-terminal control region linked to cohesin cycle timing.",
         ],
         "citations": [
           {"label": "UniProt Q8WVM7", "url": "https://www.uniprot.org/uniprotkb/Q8WVM7/entry"},
-          {"label": "PMID 28119487", "url": "https://pubmed.ncbi.nlm.nih.gov/28119487/"},
-          {"label": "PMID 30158690", "url": "https://pubmed.ncbi.nlm.nih.gov/30158690/"},
+          {"label": "PMID 11076961", "url": "https://pubmed.ncbi.nlm.nih.gov/11076961/"},
+          {"label": "PMID 32409525", "url": "https://pubmed.ncbi.nlm.nih.gov/32409525/"},
         ],
       },
       "STAG2": {
-        "summary": "STAG2 is the alternative SA subunit in many cohesin complexes; specific variants map to residues tied to cohesin assembly and developmental disease.",
+        "summary": "STAG2 is the alternative SA subunit in many cohesin complexes and uses SCD/HEAT features to stabilize cohesin architecture.",
         "sections": [
-          "N327 is a function-critical residue: N327S causes loss of RAD21/cohesin interaction in a familial cohesinopathy study.",
+          "Residue N327 in the SCD region is function-sensitive for RAD21/cohesin interaction.",
           "SCD domain 293-378 is a conserved STAG module implicated in cohesin architecture.",
-          "Developmental-disease variants include Y159C, R604Q and K1009N, highlighting additional sensitive positions.",
+          "C-terminal regulatory phosphosites around S1058, S1061 and T1112 mark a control region during cohesin cycling.",
         ],
         "citations": [
           {"label": "UniProt Q8N3U4", "url": "https://www.uniprot.org/uniprotkb/Q8N3U4/entry"},
-          {"label": "PMID 29263825", "url": "https://pubmed.ncbi.nlm.nih.gov/29263825/"},
-          {"label": "PMID 28296084", "url": "https://pubmed.ncbi.nlm.nih.gov/28296084/"},
+          {"label": "PMID 11076961", "url": "https://pubmed.ncbi.nlm.nih.gov/11076961/"},
+          {"label": "PMID 32409525", "url": "https://pubmed.ncbi.nlm.nih.gov/32409525/"},
         ],
       },
       "WAPL": {
