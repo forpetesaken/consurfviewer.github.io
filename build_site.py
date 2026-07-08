@@ -224,6 +224,14 @@ def gather_data(project_root: Path):
             "_source_query": "Ciona_intestinalis",
             "_display_source": project_root / "alignments_out/WAPL/01_WAPL_aligned.fasta",
         },
+        "PDS5A": {
+          "Full": project_root / "ConSurf/output/PDS5A/pds5a_consurf_full/Human_PDS5A_consurf.grades",
+          "Vertebrates": project_root / "ConSurf/output/PDS5A/pds5a_consurf_vertebrates/Human_PDS5A_consurf.grades",
+          "Invertebrates": project_root / "ConSurf/output/PDS5A/pds5a_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+          "_source": project_root / "ConSurf/output/PDS5A/psd5A_0708.fas",
+          "_source_query": "Ciona_intestinalis",
+          "_display_source": project_root / "ConSurf/output/PDS5A/psd5A_0708.fas",
+        },
         "SMC1": {
           "Full": project_root / "ConSurf/output/SMC1/smc1_consurf_full/Human_SMC1_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/SMC1/smc1_consurf_vertebrates/Human_SMC1_consurf.grades",
@@ -362,6 +370,18 @@ def build_html(payload, plotly_script_tag: str):
         ],
         "citations": [
           {"label": "UniProt Q7Z5K2", "url": "https://www.uniprot.org/uniprotkb/Q7Z5K2/entry"},
+          {"label": "PMID 19696148", "url": "https://pubmed.ncbi.nlm.nih.gov/19696148/"},
+        ],
+      },
+      "PDS5A": {
+        "summary": "PDS5A is a cohesin regulatory factor that binds cohesin and WAPL to tune residence time and release dynamics on chromatin.",
+        "sections": [
+          "Conserved HEAT-repeat architecture supports broad protein interaction surfaces across metazoans.",
+          "PDS5A forms functional interfaces with cohesin and WAPL that regulate cohesin unloading behavior.",
+          "Comparative conservation across vertebrate and invertebrate sets highlights structurally constrained core regions.",
+        ],
+        "citations": [
+          {"label": "UniProt Q86YN6", "url": "https://www.uniprot.org/uniprotkb/Q86YN6/entry"},
           {"label": "PMID 19696148", "url": "https://pubmed.ncbi.nlm.nih.gov/19696148/"},
         ],
       },
