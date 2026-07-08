@@ -232,6 +232,14 @@ def gather_data(project_root: Path):
           "_source_query": "Ciona_intestinalis",
           "_display_source": project_root / "ConSurf/output/PDS5A/psd5A_0708.fas",
         },
+        "PDS5B": {
+          "Full": project_root / "ConSurf/output/PDS5B/pds5b_consurf_full/Human_PDS5B_consurf.grades",
+          "Vertebrates": project_root / "ConSurf/output/PDS5B/pds5b_consurf_vertebrates/Human_PDS5B_consurf.grades",
+          "Invertebrates": project_root / "ConSurf/output/PDS5B/pds5b_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
+          "_source": project_root / "ConSurf/output/PDS5B/pds5b__0708.fas",
+          "_source_query": "Ciona_intestinalis",
+          "_display_source": project_root / "ConSurf/output/PDS5B/pds5b__0708.fas",
+        },
         "SMC1": {
           "Full": project_root / "ConSurf/output/SMC1/smc1_consurf_full/Human_SMC1_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/SMC1/smc1_consurf_vertebrates/Human_SMC1_consurf.grades",
@@ -382,6 +390,17 @@ def build_html(payload, plotly_script_tag: str):
         ],
         "citations": [
           {"label": "UniProt Q29RF7", "url": "https://www.uniprot.org/uniprotkb/Q29RF7/entry"},
+        ],
+      },
+      "PDS5B": {
+        "summary": "PDS5B is a cohesin regulatory subunit that partners with cohesin and WAPL to influence cohesin retention and release from chromatin.",
+        "sections": [
+          "PDS5B contains HEAT-repeat architecture that supports broad protein interaction surfaces.",
+          "Comparing full, vertebrate, and invertebrate ConSurf runs helps localize regions under strong evolutionary constraint.",
+          "This tab reports residue-level conservation from the 0708 PDS5B alignment split into vertebrate and invertebrate sets.",
+        ],
+        "citations": [
+          {"label": "UniProt Q9NTI5", "url": "https://www.uniprot.org/uniprotkb/Q9NTI5/entry"},
         ],
       },
       "NIPBL": {
