@@ -725,6 +725,7 @@ def build_html(payload, plotly_script_tag: str):
       <input id="hl-start" type="number" min="1" step="1" placeholder="Start residue" style="width:130px;" />
       <input id="hl-end" type="number" min="1" step="1" placeholder="End residue" style="width:130px;" />
       <button id="hl-add" type="button">Add by residues</button>
+      <button id="hl-template" type="button">Load templates</button>
       <div class=\"hint\">Hover points for exact residue number, amino acid, score, and grade.</div>
     </div>
 
@@ -781,6 +782,7 @@ def build_html(payload, plotly_script_tag: str):
     const pickBtn = document.getElementById('hl-pick');
     const clearBtn = document.getElementById('hl-clear');
     const addBtn = document.getElementById('hl-add');
+    const templateBtn = document.getElementById('hl-template');
     const findBtn = document.getElementById('seq-find');
     const labelInput = document.getElementById('hl-label');
     const colorInput = document.getElementById('hl-color');
@@ -1030,6 +1032,98 @@ def build_html(payload, plotly_script_tag: str):
       }}
 
       addHighlight(startVal, endVal, labelInput.value.trim(), colorInput.value);
+    }}
+
+    function extractTemplateResiduesFromOverview() {{
+      const ov = proteinOverviews[currentProtein] || {{}};
+      const sections = Array.isArray(ov.sections) ? ov.sections : [];
+      const templates = [];
+
+      sections.forEach((text) => {{
+        const line = String(text || '');
+
+        const rangeRegex = /\b([0-9]{{1,5}}) *- *([0-9]{{1,5}})\b/g;
+        let rangeMatch;
+        while ((rangeMatch = rangeRegex.exec(line)) !== null) {{
+          templates.push({{
+            start: Number(rangeMatch[1]),
+            end: Number(rangeMatch[2]),
+            label: `Template ${{rangeMatch[1]}}-${{rangeMatch[2]}}`,
+          }});
+        }}
+
+        const residueRegex = /\b([A-Z])([0-9]{{1,5}})\b/g;
+        let residueMatch;
+        while ((residueMatch = residueRegex.exec(line)) !== null) {{
+          templates.push({{
+            start: Number(residueMatch[2]),
+            end: Number(residueMatch[2]),
+            label: `Template ${{residueMatch[1]}}${{residueMatch[2]}}`,
+          }});
+        }}
+      }});
+
+      const unique = [];
+      const seen = new Set();
+      templates.forEach((row) => {{
+        const [s, e] = normalizeRange(row.start, row.end);
+        const key = `${{s}}-${{e}}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        unique.push({{ ...row, start: s, end: e }});
+      }});
+      return unique;
+    }}
+
+    function preloadTemplateHighlights() {{
+      const datasetRows = proteinDatasets[currentProtein][currentDataset]?.rows || [];
+      if (!datasetRows.length) {{
+        setStatus('No residues available for this dataset.');
+        return;
+      }}
+
+      const minResidue = datasetRows[0].pos;
+      const maxResidue = datasetRows[datasetRows.length - 1].pos;
+      const templates = extractTemplateResiduesFromOverview();
+      if (!templates.length) {{
+        setStatus('No residue templates found in the overview sections.');
+        return;
+      }}
+
+      const kept = [];
+      let skipped = 0;
+      templates.forEach((tpl) => {{
+        if (tpl.start < minResidue || tpl.end > maxResidue) {{
+          skipped += 1;
+          return;
+        }}
+        kept.push(tpl);
+      }});
+
+      if (!kept.length) {{
+        setStatus(`No template residues fall within this dataset range (${{minResidue}}-${{maxResidue}}).`);
+        return;
+      }}
+
+      highlights[currentProtein][currentDataset] = highlights[currentProtein][currentDataset].filter((row) => !row.isTemplate);
+      kept.forEach((tpl) => {{
+        highlights[currentProtein][currentDataset].push({{
+          id: makeHighlightId(),
+          start: tpl.start,
+          end: tpl.end,
+          label: tpl.label,
+          color: '#14b8a6',
+          isSearch: false,
+          isTemplate: true,
+        }});
+      }});
+      selectedHighlightId = highlights[currentProtein][currentDataset][highlights[currentProtein][currentDataset].length - 1].id;
+      renderPlot();
+      if (skipped > 0) {{
+        setStatus(`Loaded ${{kept.length}} template highlight(s); skipped ${{skipped}} outside dataset range.`);
+      }} else {{
+        setStatus(`Loaded ${{kept.length}} template highlight(s) from overview residues.`);
+      }}
     }}
 
     function addSearchHighlights(query) {{
@@ -1293,6 +1387,7 @@ def build_html(payload, plotly_script_tag: str):
     }});
 
     addBtn.addEventListener('click', addHighlightFromInputs);
+    templateBtn.addEventListener('click', preloadTemplateHighlights);
     [startInput, endInput].forEach((inputEl) => {{
       inputEl.addEventListener('keydown', (ev) => {{
         if (ev.key === 'Enter') {{
