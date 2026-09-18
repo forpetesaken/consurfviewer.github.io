@@ -323,6 +323,16 @@ def gather_data(project_root: Path):
 
 def build_html(payload, plotly_script_tag: str):
     datasets_json = json.dumps(payload)
+    all_scores = [
+        row["score"]
+        for datasets in payload.values()
+        for dataset in datasets.values()
+        for row in dataset.get("rows", [])
+    ]
+    score_min = min(all_scores) if all_scores else -1.0
+    score_max = max(all_scores) if all_scores else 1.0
+    score_padding = max((score_max - score_min) * 0.05, 0.1)
+    normalized_score_range_json = json.dumps([score_min - score_padding, score_max + score_padding])
     overview_json = json.dumps(
         {
       "CTCF": {
@@ -818,6 +828,7 @@ def build_html(payload, plotly_script_tag: str):
 
   <script>
     const proteinDatasets = {datasets_json};
+    const normalizedScoreRange = {normalized_score_range_json};
 
     const proteinTabs = document.getElementById('protein-tabs');
     const proteinOverviewEl = document.getElementById('protein-overview');
@@ -1409,6 +1420,7 @@ def build_html(payload, plotly_script_tag: str):
         xaxis: {{ title: 'Residue position' }},
         yaxis: {{
           title: 'Normalized score',
+          range: normalizedScoreRange,
           zeroline: true,
           zerolinecolor: '#94a3b8',
           domain: showHumanTrack ? [0.46, 1.0] : [0.35, 1.0]
