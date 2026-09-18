@@ -959,17 +959,17 @@
           range: normalizedScoreRange,
           zeroline: true,
           zerolinecolor: '#94a3b8',
-          domain: showHumanTrack ? [0.46, 1.0] : [0.35, 1.0]
+          domain: [0.46, 1.0]
         },
         yaxis2: {
           title: 'ConSurf grade',
-          domain: showHumanTrack ? [0.16, 0.32] : [0.0, 0.24],
+          domain: [0.16, 0.32],
           range: [0.5, 9.5],
           tickvals: [1,2,3,4,5,6,7,8,9]
         },
         yaxis3: {
           title: 'Human present',
-          domain: showHumanTrack ? [0.0, 0.07] : [0.0, 0.0],
+          domain: [0.0, 0.07],
           range: [0, 1.2],
           tickvals: [1],
           ticktext: ['yes'],
