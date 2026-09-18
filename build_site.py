@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.request import urlopen
 
 PLOTLY_CDN = "https://cdn.plot.ly/plotly-2.35.2.min.js"
+JSZIP_CDN = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
 
 
 def read_fasta(path: Path):
@@ -141,6 +142,10 @@ def make_plotly_script(embed_plotly: bool):
     with urlopen(PLOTLY_CDN, timeout=30) as response:
         plotly_js = response.read().decode("utf-8")
     return f"<script>{plotly_js}</script>"
+
+
+def make_zip_script():
+    return f'<script src="{JSZIP_CDN}"></script>'
 
 
 def compute_human_mapping_from_source(source_path: Path, source_query_key: str):
@@ -783,6 +788,7 @@ def build_html(payload, plotly_script_tag: str):
     <div class=\"toolbar\">
       <label for=\"dataset\">Dataset:</label>
       <select id=\"dataset\"></select>
+      <button id=\"export-protein\" type=\"button\">Export protein plots (.zip)</button>
       <input id="hl-start" type="number" min="1" step="1" placeholder="Start residue" style="width:130px;" />
       <input id="hl-end" type="number" min="1" step="1" placeholder="End residue" style="width:130px;" />
       <button id="hl-add" type="button">Add by residues</button>
@@ -833,6 +839,7 @@ def build_html(payload, plotly_script_tag: str):
     const proteinTabs = document.getElementById('protein-tabs');
     const proteinOverviewEl = document.getElementById('protein-overview');
     const datasetSelect = document.getElementById('dataset');
+    const exportProteinBtn = document.getElementById('export-protein');
     const plotEl = document.getElementById('plot');
     const listEl = document.getElementById('highlight-list');
     const statusEl = document.getElementById('status');
@@ -1483,6 +1490,41 @@ def build_html(payload, plotly_script_tag: str):
       }}
     }}
 
+    async function exportProteinPlots() {{
+      const exportDatasets = ['Vertebrates', 'Invertebrates'];
+      const originalDataset = currentDataset;
+      const zip = new JSZip();
+      exportProteinBtn.disabled = true;
+      setStatus(`Exporting ${{currentProtein}} vertebrate and invertebrate plots...`);
+
+      try {{
+        for (const dataset of exportDatasets) {{
+          if (!proteinDatasets[currentProtein][dataset]) continue;
+          currentDataset = dataset;
+          datasetSelect.value = dataset;
+          renderPlot();
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          const imageData = await Plotly.toImage(plotEl, {{ format: 'jpeg', width: 1800, height: 1100, scale: 2 }});
+          zip.file(`${{currentProtein}}_${{dataset.toLowerCase()}}.jpg`, imageData.split(',')[1], {{ base64: true }});
+        }}
+
+        const blob = await zip.generateAsync({{ type: 'blob' }});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${{currentProtein}}_consurf_plots.zip`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        setStatus(`Exported ${{currentProtein}} vertebrate and invertebrate JPEG plots.`);
+      }} catch (error) {{
+        setStatus(`Export failed: ${{error.message}}`);
+      }} finally {{
+        currentDataset = originalDataset;
+        datasetSelect.value = originalDataset;
+        renderPlot();
+        exportProteinBtn.disabled = false;
+      }}
+    }}
+
     pickBtn.addEventListener('click', () => {{
       pickMode = !pickMode;
       pickStart = null;
@@ -1532,6 +1574,7 @@ def build_html(payload, plotly_script_tag: str):
       currentDataset = datasetSelect.value;
       renderPlot();
     }});
+    exportProteinBtn.addEventListener('click', exportProteinPlots);
 
     function renderAll() {{
       selectedHighlightId = null;
@@ -1568,7 +1611,7 @@ def main():
     project_root = args.project_root.resolve() if args.project_root else script_dir.parent.resolve()
 
     payload = gather_data(project_root)
-    plotly_script_tag = make_plotly_script(embed_plotly=not args.cdn)
+    plotly_script_tag = make_plotly_script(embed_plotly=not args.cdn) + make_zip_script()
     html = build_html(payload, plotly_script_tag)
 
     out_path = args.output if args.output.is_absolute() else script_dir / args.output
