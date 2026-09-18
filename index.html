@@ -315,11 +315,14 @@
     <h2>ConSurf Interactive Viewer</h2>
     <div class="tabs" id="protein-tabs"></div>
     <div class="overview" id="protein-overview"></div>
+    <div class="toolbar export-toolbar">
+      <button id="export-protein" type="button">Export vertebrate + invertebrate plots (.zip)</button>
+      <div class="hint">Downloads both plot views for the selected protein.</div>
+    </div>
 
     <div class="toolbar">
       <label for="dataset">Dataset:</label>
       <select id="dataset"></select>
-      <button id="export-protein" type="button">Export protein plots (.zip)</button>
       <input id="hl-start" type="number" min="1" step="1" placeholder="Start residue" style="width:130px;" />
       <input id="hl-end" type="number" min="1" step="1" placeholder="End residue" style="width:130px;" />
       <button id="hl-add" type="button">Add by residues</button>
