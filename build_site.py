@@ -198,9 +198,9 @@ def gather_data(project_root: Path):
             "Full": project_root / "ConSurf/output/STAG1/stag1_consurf_full/Human_STAG1_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_vertebrates/Human_STAG1_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_invertebrates/Branchiostoma_lanceolatum_consurf.grades",
-            "_source": project_root / "ConSurf/workdir/STAG1/full/Human_STAG1_msa_file.fas",
+            "_source": project_root / "ConSurf/outputs/alignment_work/2026-09-18_125551_human_reference_invertebrates/input/STAG1_invertebrates_with_human.fas",
             "_source_query": "Branchiostoma_lanceolatum",
-            "_display_source": project_root / "ConSurf/workdir/STAG1/full/Human_STAG1_msa_file.fas",
+            "_display_source": project_root / "ConSurf/outputs/alignment_work/2026-09-18_125551_human_reference_invertebrates/input/STAG1_invertebrates_with_human.fas",
         },
         "STAG2": {
             "Full": project_root / "ConSurf/output/STAG2/stag2_consurf_full/Human_STAG2_consurf.grades",
@@ -1386,9 +1386,10 @@ def build_html(payload, plotly_script_tag: str):
         x: x,
         y: humanPresenceY,
         type: 'scatter',
-        mode: 'lines',
+        mode: 'lines+markers',
         name: 'Human sequence present',
-        line: {{ color: '#059669', width: 6, shape: 'hv' }},
+        line: {{ color: '#059669', width: 4, shape: 'hv' }},
+        marker: {{ color: '#059669', size: 4 }},
         customdata: humanPresenceCustom,
         hovertemplate:
           'Residue: %{{x}}<br>' +
