@@ -189,6 +189,15 @@ def compute_human_mapping_from_source(source_path: Path, source_query_key: str):
     return mapping
 
 
+def build_defattr(rows, human_presence):
+    lines = ["attribute: consurf", "recipient: residues", ""]
+    for row, presence in zip(rows, human_presence or []):
+        human_position = presence.get("count") if presence else row["pos"]
+        if human_position is not None:
+            lines.append(f"    /H:{human_position}\t{row['score']:.4f}")
+    return "\n".join(lines) + "\n"
+
+
 def gather_data(project_root: Path):
     cfg = {
         "RAD21": {
@@ -319,6 +328,9 @@ def gather_data(project_root: Path):
                 "rows": rows,
                 "human_presence": human_presence,
               "human_to_dataset": human_to_dataset,
+                "defattr": build_defattr(rows, human_presence if human_presence is not None else [
+                    {"count": row["pos"]} for row in rows
+                ]),
                 "msa": msa_data,
               "n_sequences": len(msa_data["records"]) if msa_data else None,
               "msa_source": msa_path.name if msa_data else None,
@@ -786,6 +798,8 @@ def build_html(payload, plotly_script_tag: str):
     <div class=\"overview\" id=\"protein-overview\"></div>
     <div class=\"toolbar export-toolbar\">
       <button id=\"export-protein\" type=\"button\">Export vertebrate + invertebrate plots (.zip)</button>
+      <button id=\"download-vertebrate-attr\" type=\"button\">Download vertebrate ChimeraX attributes</button>
+      <button id=\"download-invertebrate-attr\" type=\"button\">Download invertebrate ChimeraX attributes</button>
       <div class=\"hint\">Downloads both plot views for the selected protein.</div>
     </div>
 
@@ -843,6 +857,8 @@ def build_html(payload, plotly_script_tag: str):
     const proteinOverviewEl = document.getElementById('protein-overview');
     const datasetSelect = document.getElementById('dataset');
     const exportProteinBtn = document.getElementById('export-protein');
+    const downloadVertebrateAttrBtn = document.getElementById('download-vertebrate-attr');
+    const downloadInvertebrateAttrBtn = document.getElementById('download-invertebrate-attr');
     const plotEl = document.getElementById('plot');
     const listEl = document.getElementById('highlight-list');
     const statusEl = document.getElementById('status');
@@ -1528,6 +1544,21 @@ def build_html(payload, plotly_script_tag: str):
       }}
     }}
 
+    function downloadDefattr(dataset) {{
+      const datasetObj = proteinDatasets[currentProtein][dataset];
+      if (!datasetObj || !datasetObj.defattr) {{
+        setStatus(`No ChimeraX attributes are available for ${{currentProtein}} ${{dataset}}.`);
+        return;
+      }}
+      const blob = new Blob([datasetObj.defattr], {{ type: 'text/plain;charset=utf-8' }});
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${{currentProtein}}_${{dataset.toLowerCase()}}_consurf.defattr`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      setStatus(`Downloaded ${{currentProtein}} ${{dataset.toLowerCase()}} ChimeraX attributes.`);
+    }}
+
     pickBtn.addEventListener('click', () => {{
       pickMode = !pickMode;
       pickStart = null;
@@ -1578,6 +1609,8 @@ def build_html(payload, plotly_script_tag: str):
       renderPlot();
     }});
     exportProteinBtn.addEventListener('click', exportProteinPlots);
+    downloadVertebrateAttrBtn.addEventListener('click', () => downloadDefattr('Vertebrates'));
+    downloadInvertebrateAttrBtn.addEventListener('click', () => downloadDefattr('Invertebrates'));
 
     function renderAll() {{
       selectedHighlightId = null;
