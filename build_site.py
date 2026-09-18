@@ -254,9 +254,9 @@ def gather_data(project_root: Path):
           "Full": project_root / "ConSurf/output/SMC3/smc3_consurf_full/Human_SMC3_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/SMC3/smc3_consurf_vertebrates/Human_SMC3_consurf.grades",
           "Invertebrates": project_root / "ConSurf/output/SMC3/smc3_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-          "_source": project_root / "ConSurf/output/human_reference_invertebrates/input/SMC3_invertebrates_with_human.fas",
+          "_source": project_root / "ConSurf/outputs/alignment_work/2026-09-18_125551_human_reference_invertebrates/input/SMC3_invertebrates_with_human.fas",
           "_source_query": "Ciona_intestinalis",
-          "_display_source": project_root / "ConSurf/output/human_reference_invertebrates/input/SMC3_invertebrates_with_human.fas",
+          "_display_source": project_root / "ConSurf/outputs/alignment_work/2026-09-18_125551_human_reference_invertebrates/input/SMC3_invertebrates_with_human.fas",
         },
         "NIPBL": {
           "Full": project_root / "ConSurf/output/NIPBL/nipbl_consurf_full/Human_NIPBL_consurf.grades",
@@ -1143,10 +1143,48 @@ def build_html(payload, plotly_script_tag: str):
 
       const datasetObj = proteinDatasets[currentProtein][currentDataset] || {{}};
       const humanToDataset = datasetObj.human_to_dataset || {{}};
+      const humanPresence = datasetObj.human_presence || [];
       const usesHumanCoordinates = currentDataset === 'Invertebrates' && Object.keys(humanToDataset).length > 0;
       const kept = [];
       let skipped = 0;
       templates.forEach((tpl) => {{
+        if (usesHumanCoordinates && humanPresence.length === datasetRows.length) {{
+          const presentPositions = datasetRows
+            .map((row, index) => ({{ row, entry: humanPresence[index] }}))
+            .filter((item) =>
+              item.entry && item.entry.present === 1 &&
+              item.entry.count >= tpl.start && item.entry.count <= tpl.end
+            )
+            .map((item) => item.row.pos);
+
+          if (!presentPositions.length) {{
+            skipped += 1;
+            return;
+          }}
+
+          let segmentStart = presentPositions[0];
+          let previous = presentPositions[0];
+          presentPositions.slice(1).forEach((position) => {{
+            if (position !== previous + 1) {{
+              kept.push({{
+                ...tpl,
+                start: segmentStart,
+                end: previous,
+                label: `${{tpl.label}} (human ${{tpl.start}}-${{tpl.end}})`,
+              }});
+              segmentStart = position;
+            }}
+            previous = position;
+          }});
+          kept.push({{
+            ...tpl,
+            start: segmentStart,
+            end: previous,
+            label: `${{tpl.label}} (human ${{tpl.start}}-${{tpl.end}})`,
+          }});
+          return;
+        }}
+
         const mappedStart = usesHumanCoordinates ? humanToDataset[String(tpl.start)] : tpl.start;
         const mappedEnd = usesHumanCoordinates ? humanToDataset[String(tpl.end)] : tpl.end;
         if (mappedStart === undefined || mappedEnd === undefined) {{
