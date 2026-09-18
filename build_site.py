@@ -194,7 +194,7 @@ def build_defattr(rows, human_presence):
     for row, presence in zip(rows, human_presence or []):
         human_position = presence.get("count") if presence else row["pos"]
         if human_position is not None:
-            lines.append(f"    /H:{human_position}\t{row['score']:.4f}")
+            lines.append(f"\t/H:{human_position}\t{row['score']:.4f}")
     return "\n".join(lines) + "\n"
 
 
