@@ -332,7 +332,7 @@ def build_html(payload, plotly_script_tag: str):
     score_min = min(all_scores) if all_scores else -1.0
     score_max = max(all_scores) if all_scores else 1.0
     score_padding = max((score_max - score_min) * 0.05, 0.1)
-    normalized_score_range_json = json.dumps([score_min - score_padding, score_max + score_padding])
+    normalized_score_range_json = json.dumps([score_min - score_padding, 3])
     overview_json = json.dumps(
         {
       "CTCF": {
