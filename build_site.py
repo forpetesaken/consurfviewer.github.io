@@ -199,7 +199,7 @@ def gather_data(project_root: Path):
             "Vertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_vertebrates/Human_STAG1_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_invertebrates/Branchiostoma_lanceolatum_consurf.grades",
             "_source": project_root / "ConSurf/outputs/alignment_work/2026-09-18_125551_human_reference_invertebrates/input/STAG1_invertebrates_with_human.fas",
-            "_source_query": "Branchiostoma_lanceolatum",
+            "_source_query": "Ciona_intestinalis",
             "_display_source": project_root / "ConSurf/outputs/alignment_work/2026-09-18_125551_human_reference_invertebrates/input/STAG1_invertebrates_with_human.fas",
         },
         "STAG2": {
