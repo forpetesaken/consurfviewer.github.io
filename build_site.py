@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import argparse
 import json
 import re
@@ -188,81 +190,81 @@ def gather_data(project_root: Path):
             "Full": project_root / "ConSurf/output/RAD21/rad21_consurf_full/Human_RAD21_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/RAD21/rad21_consurf_vertebrates/Human_RAD21_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/RAD21/rad21_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": project_root / "ConSurf/output/RAD21/updated_RAD21alignment_0625.fas",
+            "_source": project_root / "ConSurf/output/RAD21/rad21_consurf_full/Human_RAD21_msa_file.fas",
             "_source_query": "Ciona_intestinalis",
-            "_display_source": project_root / "ConSurf/output/RAD21/updated_RAD21alignment_0625.fas",
+            "_display_source": project_root / "ConSurf/output/RAD21/rad21_consurf_full/Human_RAD21_msa_file.fas",
         },
         "STAG1": {
             "Full": project_root / "ConSurf/output/STAG1/stag1_consurf_full/Human_STAG1_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_vertebrates/Human_STAG1_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/STAG1/stag1_consurf_invertebrates/Branchiostoma_lanceolatum_consurf.grades",
-            "_source": Path(r"C:/Users/Nat/Downloads/Bioinformatics/updated_STAG1alignment_0612.fas"),
+            "_source": project_root / "ConSurf/workdir/STAG1/full/Human_STAG1_msa_file.fas",
             "_source_query": "Branchiostoma_lanceolatum",
-            "_display_source": Path(r"C:/Users/Nat/Downloads/Bioinformatics/updated_STAG1alignment_0612.fas"),
+            "_display_source": project_root / "ConSurf/workdir/STAG1/full/Human_STAG1_msa_file.fas",
         },
         "STAG2": {
             "Full": project_root / "ConSurf/output/STAG2/stag2_consurf_full/Human_STAG2_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/STAG2/stag2_consurf_vertebrates/Human_STAG2_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/STAG2/stag2_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": project_root / "alignments_out/STAG2/01_STAG2_aligned.fasta",
+            "_source": project_root / "ConSurf/output/STAG2/stag2_consurf_full/Human_STAG2_msa_file.fas",
             "_source_query": "Ciona_intestinalis",
-            "_display_source": project_root / "alignments_out/STAG2/01_STAG2_aligned.fasta",
+            "_display_source": project_root / "ConSurf/output/STAG2/stag2_consurf_full/Human_STAG2_msa_file.fas",
         },
         "CTCF": {
             "Full": project_root / "ConSurf/output/CTCF/ctcf_consurf_run/Human_CTCF_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_vertebrates/Human_CTCF_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/CTCF/ctcf_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": project_root / "alignments_out/CTCF/01_CTCF_aligned.fasta",
+            "_source": project_root / "ConSurf/output/CTCF/ctcf_consurf_run/Human_CTCF_msa_file.fas",
             "_source_query": "Ciona_intestinalis",
-            "_display_source": Path(r"C:/Users/Nat/Downloads/Bioinformatics/updated_alignment_0611.fas"),
+            "_display_source": project_root / "ConSurf/output/CTCF/ctcf_consurf_run/Human_CTCF_msa_file.fas",
         },
         "WAPL": {
             "Full": project_root / "ConSurf/output/WAPL/wapl_consurf_full/Human_WAPL_consurf.grades",
             "Vertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_vertebrates/Human_WAPL_consurf.grades",
             "Invertebrates": project_root / "ConSurf/output/WAPL/wapl_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-            "_source": project_root / "ConSurf/output/WAPL/WAPLalignment_0708.fas",
+            "_source": project_root / "ConSurf/output/WAPL/wapl_consurf_full/Human_WAPL_msa_file.fas",
             "_source_query": "Ciona_intestinalis",
-            "_display_source": project_root / "alignments_out/WAPL/01_WAPL_aligned.fasta",
+            "_display_source": project_root / "ConSurf/output/WAPL/wapl_consurf_full/Human_WAPL_msa_file.fas",
         },
         "PDS5A": {
           "Full": project_root / "ConSurf/output/PDS5A/pds5a_consurf_full/Human_PDS5A_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/PDS5A/pds5a_consurf_vertebrates/Human_PDS5A_consurf.grades",
           "Invertebrates": project_root / "ConSurf/output/PDS5A/pds5a_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-          "_source": project_root / "ConSurf/output/PDS5A/psd5A_0708.fas",
+          "_source": project_root / "ConSurf/output/PDS5A/pds5a_consurf_full/Human_PDS5A_msa_file.fas",
           "_source_query": "Ciona_intestinalis",
-          "_display_source": project_root / "ConSurf/output/PDS5A/psd5A_0708.fas",
+          "_display_source": project_root / "ConSurf/output/PDS5A/pds5a_consurf_full/Human_PDS5A_msa_file.fas",
         },
         "PDS5B": {
           "Full": project_root / "ConSurf/output/PDS5B/pds5b_consurf_full/Human_PDS5B_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/PDS5B/pds5b_consurf_vertebrates/Human_PDS5B_consurf.grades",
           "Invertebrates": project_root / "ConSurf/output/PDS5B/pds5b_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-          "_source": project_root / "ConSurf/output/PDS5B/pds5b__0708.fas",
+          "_source": project_root / "ConSurf/output/PDS5B/pds5b_consurf_full/Human_PDS5B_msa_file.fas",
           "_source_query": "Ciona_intestinalis",
-          "_display_source": project_root / "ConSurf/output/PDS5B/pds5b__0708.fas",
+          "_display_source": project_root / "ConSurf/output/PDS5B/pds5b_consurf_full/Human_PDS5B_msa_file.fas",
         },
         "SMC1": {
           "Full": project_root / "ConSurf/output/SMC1/smc1_consurf_full/Human_SMC1_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/SMC1/smc1_consurf_vertebrates/Human_SMC1_consurf.grades",
           "Invertebrates": project_root / "ConSurf/output/SMC1/smc1_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-          "_source": project_root / "ConSurf/output/SMC1/SMC1_0708.fas",
+          "_source": project_root / "ConSurf/output/SMC1/smc1_consurf_full/Human_SMC1_msa_file.fas",
           "_source_query": "Ciona_intestinalis",
-          "_display_source": project_root / "alignments_out/SMC1/01_SMC1_aligned.fasta",
+          "_display_source": project_root / "ConSurf/output/SMC1/smc1_consurf_full/Human_SMC1_msa_file.fas",
         },
         "SMC3": {
           "Full": project_root / "ConSurf/output/SMC3/smc3_consurf_full/Human_SMC3_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/SMC3/smc3_consurf_vertebrates/Human_SMC3_consurf.grades",
           "Invertebrates": project_root / "ConSurf/output/SMC3/smc3_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-          "_source": project_root / "ConSurf/output/SMC3/smc3_0708.fas",
+          "_source": project_root / "ConSurf/output/human_reference_invertebrates/input/SMC3_invertebrates_with_human.fas",
           "_source_query": "Ciona_intestinalis",
-          "_display_source": project_root / "ConSurf/output/SMC3/smc3_0708.fas",
+          "_display_source": project_root / "ConSurf/output/human_reference_invertebrates/input/SMC3_invertebrates_with_human.fas",
         },
         "NIPBL": {
           "Full": project_root / "ConSurf/output/NIPBL/nipbl_consurf_full/Human_NIPBL_consurf.grades",
           "Vertebrates": project_root / "ConSurf/output/NIPBL/nipbl_consurf_vertebrates/Human_NIPBL_consurf.grades",
           "Invertebrates": project_root / "ConSurf/output/NIPBL/nipbl_consurf_invertebrates/Ciona_intestinalis_consurf.grades",
-          "_source": project_root / "ConSurf/output/NIPBL/NIPBL_0708.fas",
+          "_source": project_root / "ConSurf/output/NIPBL/nipbl_consurf_full/Human_NIPBL_msa_file.fas",
           "_source_query": "Ciona_intestinalis",
-          "_display_source": project_root / "ConSurf/output/NIPBL/NIPBL_0708.fas",
+          "_display_source": project_root / "ConSurf/output/NIPBL/nipbl_consurf_full/Human_NIPBL_msa_file.fas",
         },
     }
 
@@ -300,9 +302,18 @@ def gather_data(project_root: Path):
                 if len(invertebrate_mapping) == len(rows):
                     human_presence = invertebrate_mapping
 
+            human_to_dataset = None
+            if dataset_name == "Invertebrates" and human_presence is not None:
+              human_to_dataset = {
+                str(entry["count"]): row["pos"]
+                for row, entry in zip(rows, human_presence)
+                if entry.get("count") is not None
+              }
+
             payload[protein][dataset_name] = {
                 "rows": rows,
                 "human_presence": human_presence,
+              "human_to_dataset": human_to_dataset,
                 "msa": msa_data,
               "n_sequences": len(msa_data["records"]) if msa_data else None,
               "msa_source": msa_path.name if msa_data else None,
@@ -1130,14 +1141,29 @@ def build_html(payload, plotly_script_tag: str):
         return;
       }}
 
+      const datasetObj = proteinDatasets[currentProtein][currentDataset] || {{}};
+      const humanToDataset = datasetObj.human_to_dataset || {{}};
+      const usesHumanCoordinates = currentDataset === 'Invertebrates' && Object.keys(humanToDataset).length > 0;
       const kept = [];
       let skipped = 0;
       templates.forEach((tpl) => {{
-        if (tpl.start < minResidue || tpl.end > maxResidue) {{
+        const mappedStart = usesHumanCoordinates ? humanToDataset[String(tpl.start)] : tpl.start;
+        const mappedEnd = usesHumanCoordinates ? humanToDataset[String(tpl.end)] : tpl.end;
+        if (mappedStart === undefined || mappedEnd === undefined) {{
           skipped += 1;
           return;
         }}
-        kept.push(tpl);
+        const [start, end] = normalizeRange(mappedStart, mappedEnd);
+        if (start < minResidue || end > maxResidue) {{
+          skipped += 1;
+          return;
+        }}
+        kept.push({{
+          ...tpl,
+          start,
+          end,
+          label: usesHumanCoordinates ? `${{tpl.label}} (human ${{tpl.start}}-${{tpl.end}})` : tpl.label,
+        }});
       }});
 
       if (!kept.length) {{
